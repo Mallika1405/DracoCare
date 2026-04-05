@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-python-dotenv
-browser-use
-playwright
-google-genai
-langchain-google-genai
-pydantic
