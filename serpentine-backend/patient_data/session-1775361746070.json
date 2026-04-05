@@ -1,0 +1,63 @@
+{
+  "name": "Mallika Dasgupta",
+  "age": "21",
+  "sex": "Female",
+  "phone": "",
+  "email": "",
+  "symptoms": "fever",
+  "duration": "5 days",
+  "severity": "10",
+  "medications": "no",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "don't have it",
+  "analysis": {
+    "patient_name": "Mallika Dasgupta",
+    "summary": "Mallika Dasgupta, a 21-year-old female, presents with a severe, 10/10 fever lasting 5 days, with no current medications, allergies, or medical history, and no health insurance.",
+    "urgent": true,
+    "urgent_reason": "A 10/10 fever for five days is highly concerning and indicates a potentially serious underlying condition that requires immediate medical evaluation, especially given the patient's lack of insurance which could delay care.",
+    "flags": [
+      {
+        "severity": "RED_FLAG",
+        "title": "Prolonged High Fever",
+        "description": "Patient has reported a 10/10 severity fever lasting 5 days, indicating a potentially serious underlying infection or condition requiring immediate medical evaluation."
+      },
+      {
+        "severity": "RED_FLAG",
+        "title": "Lack of Health Insurance",
+        "description": "Patient reports no health insurance, which may pose a barrier to accessing necessary medical care and could lead to delayed diagnosis and treatment."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Bacterial Infection",
+        "likelihood": "likely",
+        "explanation": "Given the severity (10/10) and duration (5 days) of the fever, a bacterial infection such as pneumonia, urinary tract infection, or other systemic infection is a strong possibility and requires diagnostic testing."
+      },
+      {
+        "name": "Severe Viral Infection",
+        "likelihood": "possible",
+        "explanation": "While many viral infections cause fever, a 10/10 fever lasting 5 days suggests a more severe course, possibly influenza or another significant viral illness, which needs to be ruled out."
+      },
+      {
+        "name": "Other Febrile Illnesses",
+        "likelihood": "possible",
+        "explanation": "Without additional symptoms or travel history, other causes of prolonged fever like mononucleosis, typhoid, or less common infections cannot be entirely excluded."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Seek immediate medical attention from an urgent care clinic or emergency department due to the severity and duration of the fever.",
+      "Monitor for additional symptoms such as rash, difficulty breathing, altered mental status, or localized pain.",
+      "Maintain hydration by drinking plenty of fluids.",
+      "Explore options for low-cost or free clinics given the lack of insurance to ensure timely access to care."
+    ],
+    "questions_for_doctor": [
+      "What is the specific cause of this prolonged, severe fever?",
+      "What diagnostic tests (e.g., blood work, imaging) are necessary to identify the underlying condition?",
+      "What is the recommended treatment plan, and are there any considerations due to the patient's lack of insurance?",
+      "Are there any specific warning signs or symptoms that would indicate a worsening condition or emergency?",
+      "What steps should be taken to manage the fever and associated discomfort safely?"
+    ]
+  }
+}

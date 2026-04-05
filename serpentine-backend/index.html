@@ -1,0 +1,357 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serpentine — Clinic Finder</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e8eaf0; min-height: 100vh; padding: 32px 16px; }
+    h1 { font-size: 1.4rem; font-weight: 700; color: #4ade80; margin-bottom: 4px; }
+    .subtitle { font-size: 0.85rem; color: #6b7280; margin-bottom: 24px; }
+    .container { max-width: 740px; margin: 0 auto; }
+
+    /* Form */
+    .form-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: block; font-size: 0.75rem; color: #9ca3af; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    input, select { width: 100%; background: #0f1117; border: 1px solid #2d3148; border-radius: 8px; padding: 9px 12px; color: #e8eaf0; font-size: 0.9rem; outline: none; }
+    input:focus, select:focus { border-color: #4ade80; }
+    .full { grid-column: 1 / -1; }
+    .tag-input-hint { font-size: 0.72rem; color: #6b7280; margin-top: 3px; }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    button { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: opacity 0.15s; }
+    button:hover { opacity: 0.85; }
+    .btn-primary { background: #4ade80; color: #0f1117; }
+    .btn-mock { background: #1e293b; color: #94a3b8; border: 1px solid #2d3148; }
+    .btn-loc { background: #1e293b; color: #60a5fa; border: 1px solid #2d3148; font-size: 0.8rem; padding: 8px 14px; }
+
+    /* Location row */
+    .loc-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+    .loc-badge { font-size: 0.78rem; color: #4ade80; background: #052e16; border-radius: 6px; padding: 3px 8px; display: none; }
+
+    /* Status */
+    #status { margin-bottom: 16px; font-size: 0.88rem; color: #facc15; min-height: 20px; }
+    .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #facc1540; border-top-color: #facc15; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Sage message */
+    .sage-msg { background: #052e16; border: 1px solid #166534; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; font-size: 0.9rem; color: #4ade80; display: none; line-height: 1.6; }
+    .sage-msg::before { content: "🐍  "; }
+
+    /* Specialty pill */
+    .specialty-pill { display: inline-block; background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 3px 12px; font-size: 0.78rem; color: #94a3b8; margin-bottom: 6px; }
+    .query-text { font-size: 0.75rem; color: #4b5563; margin-bottom: 16px; }
+
+    /* Clinic cards */
+    .clinics-list { display: flex; flex-direction: column; gap: 14px; }
+    .clinic-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 20px; position: relative; }
+    .clinic-card.rank-1 { border-color: #16a34a; }
+    .rank-badge { position: absolute; top: 16px; right: 16px; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .rank-1 .rank-badge { background: #052e16; color: #4ade80; }
+    .rank-other .rank-badge { background: #1e293b; color: #6b7280; }
+
+    .clinic-name { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 2px; padding-right: 100px; }
+    .clinic-specialty { font-size: 0.75rem; color: #4ade80; margin-bottom: 10px; }
+
+    /* Chips */
+    .clinic-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+    .meta-chip { font-size: 0.74rem; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+    .chip-rating    { background: #1c2a1c; color: #86efac; }
+    .chip-ins-yes   { background: #052e16; color: #4ade80; border: 1px solid #166534; }
+    .chip-ins-no    { background: #2a1515; color: #f87171; border: 1px solid #7f1d1d; }
+    .chip-ins-unk   { background: #1e1a2e; color: #a78bfa; border: 1px solid #4c1d95; }
+    .chip-available { background: #0c2340; color: #60a5fa; }
+    .chip-unavail   { background: #2a1515; color: #f87171; }
+    .chip-unknown   { background: #1e293b; color: #6b7280; }
+    .chip-wait      { background: #1e293b; color: #94a3b8; }
+
+    /* Insurance accepted list */
+    .insurance-list { background: #0f1117; border: 1px solid #2d3148; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+    .insurance-list-title { font-size: 0.72rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .insurance-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .ins-tag { font-size: 0.73rem; padding: 2px 8px; border-radius: 4px; background: #1e293b; color: #94a3b8; }
+    .ins-tag.matched { background: #052e16; color: #4ade80; font-weight: 600; }
+
+    .clinic-summary { font-size: 0.85rem; color: #cbd5e1; line-height: 1.55; margin-bottom: 12px; }
+
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .pros h4, .cons h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .pros h4 { color: #4ade80; }
+    .cons h4 { color: #f87171; }
+    .pros li, .cons li { font-size: 0.8rem; color: #94a3b8; line-height: 1.5; margin-left: 14px; margin-bottom: 2px; }
+
+    .clinic-footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #2d3148; padding-top: 12px; gap: 10px; flex-wrap: wrap; }
+    .clinic-address { font-size: 0.78rem; color: #6b7280; margin-bottom: 3px; }
+    .clinic-phone { font-size: 0.82rem; color: #60a5fa; text-decoration: none; display: block; }
+    .footer-links { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+    .maps-link, .web-link { font-size: 0.75rem; text-decoration: none; }
+    .maps-link { color: #4ade80; }
+    .web-link { color: #60a5fa; }
+    .maps-link:hover, .web-link:hover { text-decoration: underline; }
+
+    .score-bar-wrap { margin-bottom: 14px; }
+    .score-label { font-size: 0.72rem; color: #6b7280; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .score-bar { height: 4px; background: #2d3148; border-radius: 4px; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #166534, #4ade80); }
+
+    @media (max-width: 500px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .pros-cons { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🐍 Serpentine — Clinic Finder</h1>
+  <p class="subtitle">Agent-powered clinic search from patient symptoms, insurance & location</p>
+
+  <div class="form-card">
+    <div class="form-grid">
+
+      <div>
+        <label>Patient Name</label>
+        <input id="name" value="Maria Chen" />
+      </div>
+      <div>
+        <label>Age</label>
+        <input id="age" type="number" value="58" />
+      </div>
+      <div>
+        <label>Sex</label>
+        <select id="sex">
+          <option value="F">Female</option>
+          <option value="M">Male</option>
+        </select>
+      </div>
+      <div>
+        <label>ZIP Code</label>
+        <input id="zip" value="92101" />
+      </div>
+
+      <!-- Insurance — new field -->
+      <div class="full">
+        <label>Insurance Plan</label>
+        <input id="insurance" placeholder="e.g. Medicare, Blue Cross PPO, Aetna HMO, Cigna..." value="Medicare" />
+        <p class="tag-input-hint">Used to filter and rank clinics by whether they accept your plan</p>
+      </div>
+
+      <div class="full">
+        <label>Symptoms <span style="color:#4b5563">(comma-separated)</span></label>
+        <input id="symptoms" value="elevated LDL, chest tightness, fatigue" />
+        <p class="tag-input-hint">e.g. "ear ache, hearing loss" or "nausea, headache, dizziness"</p>
+      </div>
+      <div class="full">
+        <label>Flagged Labs <span style="color:#4b5563">(optional)</span></label>
+        <input id="labs" value="LDL 187 mg/dL, HbA1c 6.1%" />
+      </div>
+      <div class="full">
+        <label>Current Medications <span style="color:#4b5563">(optional)</span></label>
+        <input id="meds" value="Metformin, Atorvastatin, Azithromycin" />
+      </div>
+
+      <div class="full">
+        <label>Location</label>
+        <div class="loc-row">
+          <button class="btn-loc" onclick="getLocation()">📍 Use My Location</button>
+          <span class="loc-badge" id="locBadge">📍 Location set</span>
+        </div>
+        <p class="tag-input-hint" style="margin-top:6px">Optional — improves accuracy. Falls back to ZIP if not set.</p>
+      </div>
+
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="findClinics(false)">🔍 Find Clinics (Live Agent)</button>
+      <button class="btn-mock" onclick="findClinics(true)">⚡ Mock Data (Fast Test)</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+  <div class="sage-msg" id="sageMsg"></div>
+  <div id="specialtyRow" style="display:none">
+    <span class="specialty-pill" id="specialtyPill"></span>
+    <p class="query-text" id="queryText"></p>
+  </div>
+  <div class="clinics-list" id="clinicsList"></div>
+</div>
+
+<script>
+  let coords = null;
+
+  function getLocation() {
+    if (!navigator.geolocation) { alert("Geolocation not supported"); return; }
+    navigator.geolocation.getCurrentPosition(pos => {
+      coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const badge = document.getElementById("locBadge");
+      badge.style.display = "inline-block";
+      badge.textContent = `📍 ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`;
+    }, () => alert("Could not get location — ZIP will be used instead."));
+  }
+
+  function parseCSV(str) {
+    return str.split(",").map(s => s.trim()).filter(Boolean);
+  }
+
+  function setStatus(msg, loading = false) {
+    document.getElementById("status").innerHTML =
+      loading ? `<span class="spinner"></span>${msg}` : msg;
+  }
+
+  async function findClinics(useMock) {
+    const endpoint = useMock ? "/find-clinic-mock" : "/find-clinic";
+    const body = {
+      name:       document.getElementById("name").value,
+      age:        parseInt(document.getElementById("age").value),
+      sex:        document.getElementById("sex").value,
+      zip_code:   document.getElementById("zip").value,
+      insurance:  document.getElementById("insurance").value.trim() || null,
+      symptoms:   parseCSV(document.getElementById("symptoms").value),
+      lab_flags:  parseCSV(document.getElementById("labs").value),
+      medications: parseCSV(document.getElementById("meds").value),
+    };
+    if (coords) { body.latitude = coords.lat; body.longitude = coords.lng; }
+
+    setStatus(
+      useMock
+        ? "Loading mock data..."
+        : "Running Browser Use agent — searching clinics, reading reviews & checking insurance (~60–90s)...",
+      true
+    );
+    document.getElementById("clinicsList").innerHTML = "";
+    document.getElementById("sageMsg").style.display = "none";
+    document.getElementById("specialtyRow").style.display = "none";
+
+    try {
+      const res = await fetch(`http://localhost:8000${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status} — ${await res.text()}`);
+      const data = await res.json();
+      setStatus("");
+      renderResults(data);
+    } catch (err) {
+      setStatus(`❌ Error: ${err.message}`);
+    }
+  }
+
+  function renderResults(data) {
+    const patientInsurance = document.getElementById("insurance").value.trim().toLowerCase();
+
+    // Sage message
+    const sageEl = document.getElementById("sageMsg");
+    sageEl.textContent = data.sage_message;
+    sageEl.style.display = "block";
+
+    // Specialty + query
+    document.getElementById("specialtyPill").textContent = data.specialty_detected;
+    document.getElementById("queryText").textContent = `Search used: "${data.query_used}"`;
+    document.getElementById("specialtyRow").style.display = "block";
+
+    const list = document.getElementById("clinicsList");
+    list.innerHTML = "";
+
+    data.clinics.forEach((c, i) => {
+      const rank = i + 1;
+      const rankLabel = rank === 1 ? "⭐ Best Match" : `#${rank}`;
+      const rankClass = rank === 1 ? "rank-1" : "rank-other";
+
+      // Rating chip
+      const ratingChip = c.rating != null
+        ? `<span class="meta-chip chip-rating">⭐ ${c.rating}${c.review_count ? ` (${c.review_count})` : ""}</span>`
+        : "";
+
+      // Insurance match chip
+      let insChip = "";
+      if (c.insurance_match === true) {
+        insChip = `<span class="meta-chip chip-ins-yes">✓ Accepts your insurance</span>`;
+      } else if (c.insurance_match === false) {
+        insChip = `<span class="meta-chip chip-ins-no">✗ May not accept your insurance</span>`;
+      } else {
+        insChip = `<span class="meta-chip chip-ins-unk">💳 Insurance: verify</span>`;
+      }
+
+      // New patients chip
+      const availChip = c.accepting_new_patients === true
+        ? `<span class="meta-chip chip-available">✓ Accepting new patients</span>`
+        : c.accepting_new_patients === false
+        ? `<span class="meta-chip chip-unavail">✗ Not accepting</span>`
+        : `<span class="meta-chip chip-unknown">New patients: unknown</span>`;
+
+      const waitChip = c.wait_time
+        ? `<span class="meta-chip chip-wait">🕐 ${c.wait_time}</span>` : "";
+
+      // Insurance accepted tags — highlight patient's plan if matched
+      let insuranceBlock = "";
+      if (c.insurance_accepted && c.insurance_accepted.length > 0) {
+        const tags = c.insurance_accepted.map(plan => {
+          const isMatch = patientInsurance && plan.toLowerCase().includes(patientInsurance);
+          return `<span class="ins-tag${isMatch ? " matched" : ""}">${plan}</span>`;
+        }).join("");
+        insuranceBlock = `
+          <div class="insurance-list">
+            <div class="insurance-list-title">Insurances accepted</div>
+            <div class="insurance-tags">${tags}</div>
+          </div>`;
+      }
+
+      const pros = (c.pros || []).map(p => `<li>${p}</li>`).join("");
+      const cons = (c.cons || []).map(p => `<li>${p}</li>`).join("");
+
+      const scoreWidth = Math.round(Math.min(c.score / 10, 1) * 100);
+
+      const mapsLink = c.google_maps_url
+        ? `<a class="maps-link" href="${c.google_maps_url}" target="_blank">📍 Google Maps</a>` : "";
+      const webLink = c.website_url
+        ? `<a class="web-link" href="${c.website_url}" target="_blank">🌐 Website</a>` : "";
+
+      list.innerHTML += `
+        <div class="clinic-card ${rankClass}">
+          <span class="rank-badge">${rankLabel}</span>
+
+          <div class="clinic-name">${c.name}</div>
+          <div class="clinic-specialty">${c.specialty || data.specialty_detected}</div>
+
+          <div class="score-bar-wrap">
+            <div class="score-label">
+              <span>Match score</span>
+              <span>${c.score.toFixed(1)} / 10</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-fill" style="width:${scoreWidth}%"></div>
+            </div>
+          </div>
+
+          <div class="clinic-meta">
+            ${ratingChip}${insChip}${availChip}${waitChip}
+          </div>
+
+          ${insuranceBlock}
+
+          <p class="clinic-summary">${c.summary}</p>
+
+          <div class="pros-cons">
+            <div class="pros"><h4>Pros</h4><ul>${pros}</ul></div>
+            <div class="cons"><h4>Cons</h4><ul>${cons}</ul></div>
+          </div>
+
+          <div class="clinic-footer">
+            <div>
+              <div class="clinic-address">📍 ${c.address}</div>
+              ${c.phone ? `<a class="clinic-phone" href="tel:${c.phone}">${c.phone}</a>` : ""}
+            </div>
+            <div class="footer-links">
+              ${mapsLink}${webLink}
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+</script>
+</body>
+</html>

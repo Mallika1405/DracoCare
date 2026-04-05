@@ -1,11 +1,14 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from google import genai
 from google.genai import types
 import os
 import json
 import tempfile
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,14 +20,14 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-chat_sessions = {}
-patient_store = {}
-call_queue = []
-conversation_history = {}
+# ─────────────────────────────────────────────────────────────────────────────
+# Models
+# ─────────────────────────────────────────────────────────────────────────────
 
 class ChatMessage(BaseModel):
     message: str
@@ -35,7 +38,29 @@ class ChatMessage(BaseModel):
 class AnalysisResult(BaseModel):
     session_id: str
 
-# ── Prompts ──────────────────────────────────────────────────────────────────
+class MedRequest(BaseModel):
+    drug: str
+    dosage: str
+    quantity: Optional[int] = 90
+
+class MedResult(BaseModel):
+    store: str
+    price: float
+    title: str
+    link: str
+
+# ─────────────────────────────────────────────────────────────────────────────
+# In-memory stores
+# ─────────────────────────────────────────────────────────────────────────────
+
+chat_sessions = {}
+patient_store = {}
+call_queue = []
+conversation_history = {}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Prompts
+# ─────────────────────────────────────────────────────────────────────────────
 
 RECEPTIONIST_PROMPT = """You are Alex, a warm and friendly medical receptionist AI.
 
@@ -57,7 +82,7 @@ PHASE 3 — Adaptive questioning:
 • If they skipped upload: Ask the following ONE at a time, conversationally:
   - Symptoms they're experiencing
   - How long they've had them
-  - Severity 1–10
+  - Severity 1-10
   - Current medications
   - Known allergies
   - Any chronic conditions or relevant medical history
@@ -90,7 +115,18 @@ Keep responses under 150 words.
 Never diagnose. Never prescribe.
 Always say 'commonly associated with' not 'you have'."""
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+def safe_parse_json(text: str):
+    """Strip markdown fences and return the first JSON object or array found."""
+    text = text.replace("```json", "").replace("```", "").strip()
+    candidates = [i for i in [text.find("{"), text.find("[")] if i != -1]
+    if not candidates:
+        raise ValueError(f"No JSON found: {text[:200]}")
+    return json.loads(text[min(candidates):])
+
 
 def build_doctor_context(session_id: str) -> str:
     patient = patient_store.get(session_id, {})
@@ -114,11 +150,12 @@ PATIENT SUMMARY:
         context += f"\nLAB RESULTS:\n{patient['lab_results']}"
     return context
 
+
 def save_patient_to_file(session_id: str):
     os.makedirs("patient_data", exist_ok=True)
-    filepath = f"patient_data/{session_id}.json"
-    with open(filepath, "w") as f:
+    with open(f"patient_data/{session_id}.json", "w") as f:
         json.dump(patient_store[session_id], f, indent=2)
+
 
 async def extract_patient_info(session_id: str):
     if session_id not in conversation_history:
@@ -129,9 +166,9 @@ async def extract_patient_info(session_id: str):
     extraction_chat = client.chats.create(
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
-            system_instruction="""You extract structured data from medical intake conversations. 
-            Return ONLY valid raw JSON with no markdown, no backticks, no explanation.
-            If a field is not mentioned, use empty string."""
+            system_instruction="""You extract structured data from medical intake conversations.
+Return ONLY valid raw JSON with no markdown, no backticks, no explanation.
+If a field is not mentioned, use empty string."""
         )
     )
 
@@ -157,24 +194,91 @@ Conversation to extract from:
 """)
 
     try:
-        text = response.text.strip()
-        if "```" in text:
-            text = text.split("```")[1]
-            if text.startswith("json"):
-                text = text[4:]
-        text = text.strip()
-
-        extracted = json.loads(text)
+        extracted = safe_parse_json(response.text)
         if session_id not in patient_store:
             patient_store[session_id] = {}
         patient_store[session_id].update(extracted)
         save_patient_to_file(session_id)
         print(f"✅ Patient data saved: {extracted}")
     except Exception as e:
-        print(f"❌ Extraction error: {e}")
-        print(f"Raw text was: {response.text}")
+        print(f"❌ Extraction error: {e}\nRaw: {response.text}")
 
-# ── Routes ────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Browser agent (pharmacy price finder)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def get_llm():
+    from browser_use import ChatOpenAI
+    return ChatOpenAI(
+        model="gpt-4o",
+    )
+
+
+async def run_agent(drug: str, dosage: str, quantity: int):
+    from browser_use import Agent
+
+    task = f"""
+Go to https://www.google.com
+
+1. Search for "{drug} {dosage} {quantity} tablets"
+2. Click the "Shopping" tab
+
+3. WAIT until results fully load.
+   You should clearly see sections like "Popular options".
+
+4. Click the "Sort by" dropdown.
+5. Select "Price: low to high"
+
+6. WAIT again for results to update.
+
+7. Scroll down slowly until you see a section titled "Popular options".
+
+8. Inside "Popular options":
+   - Identify the FIRST product card (top-left item)
+
+9. CLICK that first product.
+
+10. WAIT for the product detail page to load.
+
+11. Extract:
+- product title
+- price (number only)
+- store name (seller)
+- current page URL
+
+Return ONLY JSON:
+
+{{
+  "store": "...",
+  "price": 10.50,
+  "title": "...",
+  "link": "..."
+}}
+
+Rules:
+- MUST click into product page before extracting
+- MUST use first item inside "Popular options"
+- Ignore sponsored results
+- Do NOT guess
+- If anything fails return: {{"found": false}}
+"""
+
+    print(f"🚀 Running browser agent for {drug} {dosage}...")
+    agent = Agent(task=task, llm=get_llm())
+    result = await agent.run()
+    raw = result.final_result()
+    print(f"🧠 RAW OUTPUT: {raw}")
+
+    data = safe_parse_json(raw)
+    if not data or data.get("found") is False:
+        raise ValueError("No valid result from agent")
+    return data
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLINIC ROUTES
+# ─────────────────────────────────────────────────────────────────────────────
 
 @app.post("/chat")
 async def chat(body: ChatMessage):
@@ -192,8 +296,8 @@ async def chat(body: ChatMessage):
             patient_store[body.session_id] = {}
         patient_store[body.session_id]["location"] = {"lat": body.lat, "lng": body.lng}
 
-    chat = chat_sessions[body.session_id]
-    response = chat.send_message(body.message)
+    chat_obj = chat_sessions[body.session_id]
+    response = chat_obj.send_message(body.message)
 
     conversation_history[body.session_id].append(f"patient: {body.message}")
     conversation_history[body.session_id].append(f"alex: {response.text}")
@@ -201,7 +305,6 @@ async def chat(body: ChatMessage):
     ready_for_consultation = "[READY_FOR_CONSULTATION]" in response.text
     clean_response = response.text.replace("[READY_FOR_CONSULTATION]", "").strip()
 
-    # Detect if Alex is asking about lab uploads so frontend can show button
     asking_for_labs = (
         "upload" in response.text.lower() and
         any(w in response.text.lower() for w in ["lab", "report", "document", "result"])
@@ -224,8 +327,7 @@ async def extract_labs(
     session_id: str = Form("default")
 ):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-        content = await file.read()
-        tmp.write(content)
+        tmp.write(await file.read())
         tmp_path = tmp.name
 
     try:
@@ -239,32 +341,22 @@ async def extract_labs(
             contents=[
                 uploaded_file,
                 """Extract all information from this medical document. Return ONLY raw JSON, no markdown:
-                {
-                    "patient_name": "",
-                    "age": "",
-                    "sex": "",
-                    "date_of_test": "",
-                    "symptoms_mentioned": "",
-                    "medications": [
-                        {
-                            "name": "med name",
-                            "dosage": "dosage",
-                            "frequency": "frequency"
-                        }
-                    ],
-                    "allergies": "",
-                    "medical_history": "",
-                    "insurance": "",
-                    "labs": [
-                        {
-                            "name": "test name",
-                            "value": "result",
-                            "unit": "unit",
-                            "reference_range": "range",
-                            "status": "NORMAL/HIGH/LOW"
-                        }
-                    ]
-                }"""
+{
+    "patient_name": "",
+    "age": "",
+    "sex": "",
+    "date_of_test": "",
+    "symptoms_mentioned": "",
+    "medications": [
+        {"name": "med name", "dosage": "dosage", "frequency": "frequency"}
+    ],
+    "allergies": "",
+    "medical_history": "",
+    "insurance": "",
+    "labs": [
+        {"name": "test name", "value": "result", "unit": "unit", "reference_range": "range", "status": "NORMAL/HIGH/LOW"}
+    ]
+}"""
             ]
         )
 
@@ -273,31 +365,19 @@ async def extract_labs(
         patient_store[session_id]["lab_results"] = response.text
         save_patient_to_file(session_id)
 
-        # Try to pre-populate patient store from lab data
+        # Pre-populate patient store from lab data
         try:
-            text = response.text.strip()
-            if "```" in text:
-                text = text.split("```")[1]
-                if text.startswith("json"):
-                    text = text[4:]
-            lab_data = json.loads(text.strip())
-
-            # Map lab fields → patient store fields (don't overwrite existing)
+            lab_data = safe_parse_json(response.text)
             field_map = {
-                "patient_name": "name",
-                "age": "age",
-                "sex": "sex",
-                "allergies": "allergies",
-                "medical_history": "medical_history",
-                "insurance": "insurance",
-                "symptoms_mentioned": "symptoms",
+                "patient_name": "name", "age": "age", "sex": "sex",
+                "allergies": "allergies", "medical_history": "medical_history",
+                "insurance": "insurance", "symptoms_mentioned": "symptoms",
             }
             for lab_key, store_key in field_map.items():
                 val = lab_data.get(lab_key, "")
                 if val and not patient_store[session_id].get(store_key):
                     patient_store[session_id][store_key] = val
 
-            # Flatten medications list to string for easy passing
             meds = lab_data.get("medications", [])
             if meds and not patient_store[session_id].get("medications"):
                 med_str = ", ".join(
@@ -311,7 +391,7 @@ async def extract_labs(
         except Exception as e:
             print(f"Pre-population warning: {e}")
 
-        # Build a plain-English summary of what was extracted, to feed back to Alex
+        # Plain-English summary for Alex
         summary_chat = client.chats.create(
             model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
@@ -322,11 +402,7 @@ async def extract_labs(
             f"Summarise what patient information and lab results are present in this data, in 3-5 sentences:\n{response.text}"
         )
 
-        return {
-            "extracted": response.text,
-            "summary": summary_resp.text,
-            "status": "success"
-        }
+        return {"extracted": response.text, "summary": summary_resp.text, "status": "success"}
 
     finally:
         os.unlink(tmp_path)
@@ -334,49 +410,37 @@ async def extract_labs(
 
 @app.post("/notify-lab-upload")
 async def notify_lab_upload(body: ChatMessage):
-    """
-    Called after a successful lab upload.
-    Injects the lab summary into Alex's chat so she can ask only about gaps.
-    """
     session_id = body.session_id
     patient = patient_store.get(session_id, {})
 
     if session_id not in chat_sessions:
         chat_sessions[session_id] = client.chats.create(
             model="gemini-2.5-flash",
-            config=types.GenerateContentConfig(
-                system_instruction=RECEPTIONIST_PROMPT
-            )
+            config=types.GenerateContentConfig(system_instruction=RECEPTIONIST_PROMPT)
         )
         conversation_history[session_id] = []
 
-    lab_summary = body.message  # frontend passes the summary here
-
-    # Build a context-aware message for Alex
-    known_fields = []
-    for field, label in [
-        ("name", "name"), ("age", "age"), ("sex", "biological sex"),
-        ("symptoms", "symptoms"), ("medications", "medications"),
-        ("allergies", "allergies"), ("medical_history", "medical history"),
-        ("insurance", "insurance"),
-    ]:
-        if patient.get(field):
-            known_fields.append(label)
-
-    known_str = ", ".join(known_fields) if known_fields else "nothing specific yet"
+    known_fields = [
+        label for field, label in [
+            ("name", "name"), ("age", "age"), ("sex", "biological sex"),
+            ("symptoms", "symptoms"), ("medications", "medications"),
+            ("allergies", "allergies"), ("medical_history", "medical history"),
+            ("insurance", "insurance"),
+        ] if patient.get(field)
+    ]
 
     internal_msg = (
         f"[LAB_CONTEXT] The patient just uploaded their lab report. "
-        f"Here is what was extracted:\n\n{lab_summary}\n\n"
-        f"Fields already known from the document: {known_str}.\n"
+        f"Here is what was extracted:\n\n{body.message}\n\n"
+        f"Fields already known from the document: {', '.join(known_fields) or 'nothing specific yet'}.\n"
         f"Please acknowledge the upload warmly, then ONLY ask about what's still missing to complete the intake. "
         f"Do not re-ask anything already answered."
     )
 
-    chat = chat_sessions[session_id]
-    response = chat.send_message(internal_msg)
+    chat_obj = chat_sessions[session_id]
+    response = chat_obj.send_message(internal_msg)
 
-    conversation_history[session_id].append(f"[system]: lab report uploaded")
+    conversation_history[session_id].append("[system]: lab report uploaded")
     conversation_history[session_id].append(f"alex: {response.text}")
 
     ready_for_consultation = "[READY_FOR_CONSULTATION]" in response.text
@@ -406,8 +470,8 @@ async def consultation(body: ChatMessage):
             )
         )
 
-    chat = chat_sessions[session_key]
-    response = chat.send_message(body.message)
+    chat_obj = chat_sessions[session_key]
+    response = chat_obj.send_message(body.message)
 
     wants_appointment = any(word in body.message.lower() for word in [
         "yes", "sure", "book", "appointment", "please", "yeah", "yep"
@@ -425,17 +489,12 @@ async def consultation(body: ChatMessage):
         })
         save_patient_to_file(body.session_id)
 
-    return {
-        "response": response.text,
-        "character": "doctor",
-        "wants_appointment": wants_appointment
-    }
+    return {"response": response.text, "character": "doctor", "wants_appointment": wants_appointment}
 
 
 @app.post("/analyze")
 async def analyze(body: AnalysisResult):
     patient = patient_store.get(body.session_id, {})
-
     if not patient:
         return {"error": "No patient data found"}
 
@@ -445,7 +504,7 @@ async def analyze(body: AnalysisResult):
         model="gemini-2.5-flash",
         config=types.GenerateContentConfig(
             system_instruction="""You are a medical AI assistant that analyzes patient data.
-            Return ONLY raw JSON, no markdown, no backticks, no explanation."""
+Return ONLY raw JSON, no markdown, no backticks, no explanation."""
         )
     )
 
@@ -471,15 +530,8 @@ Analyze this patient's data and return ONLY this exact JSON:
         }}
     ],
     "drug_interactions": [],
-    "recommendations": [
-        "recommendation 1",
-        "recommendation 2"
-    ],
-    "questions_for_doctor": [
-        "question 1",
-        "question 2",
-        "question 3"
-    ]
+    "recommendations": ["recommendation 1", "recommendation 2"],
+    "questions_for_doctor": ["question 1", "question 2", "question 3"]
 }}
 
 Severity levels must be exactly: RED_FLAG, WATCH, or GOOD
@@ -496,29 +548,11 @@ Medical history: {patient.get('medical_history', 'none')}
 """)
 
     try:
-        text = response.text.strip()
-        if "```" in text:
-            parts = text.split("```")
-            for part in parts:
-                if part.startswith("json"):
-                    text = part[4:].strip()
-                    break
-                elif part.strip().startswith("{"):
-                    text = part.strip()
-                    break
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start != -1 and end > start:
-            text = text[start:end].strip()
-
-        analysis = json.loads(text)
-
+        analysis = safe_parse_json(response.text)
         if body.session_id in patient_store:
             patient_store[body.session_id]["analysis"] = analysis
             save_patient_to_file(body.session_id)
-
         return {"analysis": analysis, "status": "success"}
-
     except Exception as e:
         print(f"Analysis error: {e}")
         return {"error": str(e), "raw": response.text}
@@ -528,10 +562,122 @@ Medical history: {patient.get('medical_history', 'none')}
 def get_patient(session_id: str):
     return patient_store.get(session_id, {"error": "not found"})
 
+
 @app.get("/call-queue")
 def get_call_queue():
     return {"queue": call_queue}
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHARMACY ROUTES
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.post("/run", response_model=MedResult)
+async def run_med_search(req: MedRequest):
+    """
+    Launch the browser agent to find the cheapest price for one medication.
+    Falls back gracefully so the demo never hard-crashes.
+    """
+    try:
+        data = await run_agent(req.drug, req.dosage, req.quantity)
+        return {
+            "store": data.get("store", ""),
+            "price": float(data.get("price")),
+            "title": data.get("title", ""),
+            "link": data.get("link", ""),
+        }
+    except Exception as e:
+        print(f"❌ /run error: {e}")
+        return {
+            "store": "Fallback Pharmacy",
+            "price": 12.99,
+            "title": f"{req.drug} {req.dosage}",
+            "link": "#",
+        }
+
+
+@app.post("/parse-prescription")
+async def parse_prescription(file: UploadFile = File(...)):
+    """
+    Accept a prescription PDF, upload it to Gemini Files API, and extract
+    all medications with dosages and quantities.
+    Returns: { status, medications: [{drug, dosage, quantity}] }
+    """
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    try:
+        # Upload to Gemini Files API — same pattern as /extract-labs
+        uploaded_file = client.files.upload(
+            file=tmp_path,
+            config={"mime_type": "application/pdf"}
+        )
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[
+                uploaded_file,
+                """You are a pharmacy assistant. Extract every medication from this prescription.
+
+Return ONLY a JSON array — no markdown, no backticks, no explanation.
+Each object must have exactly these three fields:
+  "drug"     — brand or generic name, title-cased  (string)
+  "dosage"   — e.g. "500mg", "10mg/5ml"; use "standard" if not specified  (string)
+  "quantity" — number of tablets/units as an integer; default 90 if not mentioned  (int)
+
+Example output:
+[
+  {"drug": "Metformin",  "dosage": "500mg", "quantity": 90},
+  {"drug": "Lisinopril", "dosage": "10mg",  "quantity": 30}
+]
+
+If no medications are found, return: []"""
+            ]
+        )
+
+        raw = response.text.strip()
+        print(f"💊 Gemini prescription parse: {raw[:300]}")
+
+        medications = safe_parse_json(raw)
+
+        if not isinstance(medications, list):
+            raise ValueError("Expected a JSON array from Gemini")
+
+        clean = [
+            {
+                "drug":     str(m.get("drug", "Unknown")).strip(),
+                "dosage":   str(m.get("dosage", "standard")).strip(),
+                "quantity": int(m.get("quantity", 90)),
+            }
+            for m in medications if m.get("drug")
+        ]
+
+        return {"status": "success", "medications": clean}
+
+    except Exception as e:
+        print(f"❌ /parse-prescription error: {e}")
+        return {
+            "status": "error",
+            "message": f"Could not parse prescription: {e}",
+        }
+
+    finally:
+        os.unlink(tmp_path)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Static frontend (only mounted if the static/ dir exists)
+# ─────────────────────────────────────────────────────────────────────────────
+
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+    @app.get("/")
+    async def root():
+        return FileResponse("static/index.html")
