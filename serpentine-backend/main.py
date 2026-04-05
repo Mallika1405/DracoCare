@@ -8,14 +8,45 @@ from google.genai import types
 import os
 import json
 import tempfile
+import asyncio
 from typing import Optional
 from dotenv import load_dotenv
+from groq import AsyncGroq
+from playwright.async_api import async_playwright
 
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+groq_client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 
 app = FastAPI()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pharmacy store map
+# ─────────────────────────────────────────────────────────────────────────────
+
+PHARMACY_MAP = {
+    "target":     ("https://www.target.com",     "https://www.target.com/s?searchTerm={q}"),
+    "cvs":        ("https://www.cvs.com",         "https://www.cvs.com/search?searchTerm={q}"),
+    "walgreens":  ("https://www.walgreens.com",   "https://www.walgreens.com/search/results.jsp?Ntt={q}"),
+    "walmart":    ("https://www.walmart.com",     "https://www.walmart.com/search?q={q}"),
+    "costco":     ("https://www.costco.com",      "https://www.costco.com/CatalogSearch?keyword={q}"),
+    "amazon":     ("https://www.amazon.com",      "https://www.amazon.com/s?k={q}"),
+    "rite aid":   ("https://www.riteaid.com",     "https://www.riteaid.com/search?q={q}"),
+    "rite-aid":   ("https://www.riteaid.com",     "https://www.riteaid.com/search?q={q}"),
+    "sam's club": ("https://www.samsclub.com",    "https://www.samsclub.com/s/{q}"),
+    "sams club":  ("https://www.samsclub.com",    "https://www.samsclub.com/s/{q}"),
+    "kroger":     ("https://www.kroger.com",      "https://www.kroger.com/search?query={q}"),
+    "goodrx":     ("https://www.goodrx.com",      "https://www.goodrx.com/drugs/search?query={q}"),
+}
+
+def resolve_pharmacy(name: str) -> tuple[str, str | None]:
+    lower = name.lower().strip()
+    for key, urls in PHARMACY_MAP.items():
+        if key in lower:
+            return urls
+    first_word = lower.split()[0]
+    return (f"https://www.{first_word}.com", None)
 
 app.add_middleware(
     CORSMiddleware,
@@ -53,7 +84,7 @@ class MedResult(BaseModel):
     store: str
     price: float
     title: str
-    link: str
+    all_results: list[str] = []
 
 # ─────────────────────────────────────────────────────────────────────────────
 # In-memory stores
@@ -211,66 +242,130 @@ Conversation to extract from:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Browser agent (pharmacy price finder)
+# Browser agent (pharmacy price finder) — Playwright + Groq
 # ─────────────────────────────────────────────────────────────────────────────
 
-import asyncio
+async def run_agent(drug: str, dosage: str, quantity: int) -> dict:
+    search_term = f"{drug} {dosage} {quantity} tablets buy price"
 
-def get_llm():
-    from browser_use import ChatOpenAI
-    return ChatOpenAI(
-        model="gpt-4o",
-    )
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            headless=False,
+            args=["--disable-blink-features=AutomationControlled"],
+        )
+        context = await browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/123.0.0.0 Safari/537.36"
+            ),
+            viewport={"width": 1280, "height": 800},
+            locale="en-US",
+        )
+        page = await context.new_page()
+        await page.add_init_script(
+            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+        )
 
+        await page.goto("https://www.google.com", wait_until="domcontentloaded")
+        await asyncio.sleep(1.5)
 
-async def run_agent(drug: str, dosage: str, quantity: int):
-    from browser_use import Agent
-    query = f"{drug} {dosage} {quantity} tablets".replace(" ", "+")
-    start_url = f"https://www.google.com/search?tbm=shop&q={query}"
+        search_box = await page.wait_for_selector('textarea[name="q"]', timeout=10000)
+        await search_box.click()
+        await asyncio.sleep(0.5)
+        await page.keyboard.type(search_term, delay=60)
+        await asyncio.sleep(0.8)
+        await page.keyboard.press("Enter")
 
-    task = f"""
-Open this URL directly:
-{start_url}
+        await page.wait_for_load_state("domcontentloaded", timeout=15000)
+        await asyncio.sleep(2)
 
-Your job is STRICT:
+        try:
+            shopping_tab = await page.wait_for_selector('a:has-text("Shopping")', timeout=6000)
+            await asyncio.sleep(0.5)
+            await shopping_tab.click()
+            await page.wait_for_load_state("domcontentloaded", timeout=15000)
+            await asyncio.sleep(2)
+        except Exception:
+            pass
 
-1. Ignore all sponsored products.
-2. Look at ALL visible non-sponsored product cards on the page.
-3. Extract price from EACH visible card.
-4. Compare the prices yourself.
-5. Select the LOWEST price among them.
-6. Return that product's:
-   - store
-   - price
-   - title
+        page_text = await page.inner_text("body")
+        await browser.close()
 
-IMPORTANT:
-- DO NOT just pick the first card.
-- DO NOT assume the page is sorted.
-- You MUST compare prices across multiple items.
-- If link is not visible, use current page URL.
+    groq_prompt = f"""You are a pharmacy price analyst.
 
-Return ONLY JSON:
-{{
-  "store": "...",
-  "price": 10.50,
-  "title": "...",
-  "link": "..."
-}}
+You will be given raw scraped text from a Google Shopping results page.
 
-Stop immediately after finding the lowest price.
+Your job:
+1. Extract ONLY legitimate, trustworthy pharmacy or retail listings.
+2. IGNORE any unknown, suspicious, or non-medical sellers.
+
+TRUSTED STORES INCLUDE (but are not limited to):
+- CVS, Walgreens, Walmart, Target, Costco
+- Amazon, Rite Aid, Kroger, Sam's Club, GoodRx
+
+FILTER OUT:
+- Random domains or unknown brand names
+- Liquor stores, marketplaces, or unrelated shops
+- Listings without clear store names
+- Anything that looks like a scam, reseller, or third-party seller
+
+Only include results that clearly come from well-known national retailers or verified pharmacy platforms.
+
+Then:
+- From the filtered results, determine the cheapest valid option.
+- If NO trustworthy results are found, return "CHEAPEST: NONE".
+
+OUTPUT FORMAT (STRICT — no extra text):
+
+CHEAPEST: [store name or NONE]
+PRICE: $[price or N/A]
+PRODUCT: [product name or N/A]
+PACK SIZE: {quantity} units
+
+ALL RESULTS:
+- [Store]: $[price] ([product name])
+
+DATA:
+\"\"\"
+{page_text[:6000]}
+\"\"\"
 """
 
-    agent = Agent(task=task, llm=get_llm())
-    result = await asyncio.wait_for(agent.run(), timeout=180)
+    groq_response = await groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": groq_prompt}],
+        max_tokens=400,
+        temperature=0.1,
+    )
+    raw = groq_response.choices[0].message.content.strip()
 
-    raw = result.final_result()
-    data = safe_parse_json(raw)
+    cheapest_store, cheapest_price, cheapest_title = "", "", ""
+    all_results = []
+    in_all = False
 
-    if not data or data.get("found") is False:
-        raise ValueError("No valid result from agent")
+    for line in raw.split("\n"):
+        line = line.strip()
+        if line.startswith("CHEAPEST:"):
+            cheapest_store = line.replace("CHEAPEST:", "").strip()
+        elif line.startswith("PRICE:"):
+            cheapest_price = line.replace("PRICE:", "").strip().lstrip("$")
+        elif line.startswith("PRODUCT:"):
+            cheapest_title = line.replace("PRODUCT:", "").strip()
+        elif line.startswith("ALL RESULTS:"):
+            in_all = True
+        elif in_all and line.startswith("-"):
+            all_results.append(line.lstrip("- ").strip())
 
-    return data
+    if not cheapest_store or cheapest_store.upper() == "NONE" or not cheapest_price or cheapest_price == "N/A":
+        raise ValueError(f"No trusted pharmacy results found. Raw:\n{raw}")
+
+    return {
+        "store": cheapest_store,
+        "price": float(cheapest_price.replace(",", "")),
+        "title": cheapest_title,
+        "all_results": all_results,
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -362,7 +457,6 @@ async def extract_labs(
         patient_store[session_id]["lab_results"] = response.text
         save_patient_to_file(session_id)
 
-        # Pre-populate patient store from lab data
         try:
             lab_data = safe_parse_json(response.text)
             field_map = {
@@ -388,7 +482,6 @@ async def extract_labs(
         except Exception as e:
             print(f"Pre-population warning: {e}")
 
-        # Plain-English summary for Alex
         summary_chat = client.chats.create(
             model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
@@ -438,7 +531,7 @@ async def notify_lab_upload(body: ChatMessage):
     response = chat_obj.send_message(internal_msg)
 
     conversation_history[session_id].append("[system]: lab report uploaded")
-    conversation_history[session_id].append(f"alex: {response.text}")
+    conversation_history[session_id].append(f"anita: {response.text}")
 
     ready_for_consultation = "[READY_FOR_CONSULTATION]" in response.text
     clean_response = response.text.replace("[READY_FOR_CONSULTATION]", "").strip()
@@ -582,7 +675,7 @@ async def run_med_search(req: MedRequest):
             "store": data.get("store", ""),
             "price": float(data.get("price")),
             "title": data.get("title", ""),
-            "link": data.get("link", ""),
+            "all_results": data.get("all_results", []),
         }
     except Exception as e:
         print(f"❌ /run error: {e}")
@@ -590,7 +683,7 @@ async def run_med_search(req: MedRequest):
             "store": "Fallback Pharmacy",
             "price": 12.99,
             "title": f"{req.drug} {req.dosage}",
-            "link": "#",
+            "all_results": [],
         }
 
 
