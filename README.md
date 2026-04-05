@@ -1,4 +1,4 @@
-# 🐉 DracoCare
+# DracoCare
 
 > Your personal dragon-powered health clinic — making healthcare accessible, understandable, and actually kind of fun.
 
