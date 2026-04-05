@@ -14,7 +14,7 @@ We built a full clinic experience with three dragon characters, two main tracks,
 
 ## Features
 
-### 🩺 Track 1: Patient Visit (Feeling Sick)
+### Track 1: Patient Visit (Feeling Sick)
 
 1. **Anita Checkin** (Receptionist Dragon) — Collects your name, age, gender, symptoms, current medications, optional lab results, and insurance info via friendly chat.
 2. **Dr. Stitch** (AI Doctor Dragon) — Reviews your case and generates a comprehensive, interactive report including:
@@ -27,7 +27,7 @@ We built a full clinic experience with three dragon characters, two main tracks,
 4. **Appointment Booking** — Select a clinic, connect Google Calendar or enter availability manually.
 5. **Riley** (Voice Assistant) — Automatically calls the clinic on your behalf, books a reasonable appointment, and adds it to your calendar. No phone call required.
 
-### 💊 Track 2: Prescription Price Finder
+### Track 2: Prescription Price Finder
 
 - **Ash Pirin** (Pharmacist Dragon) — Takes your medication details and searches the web in real time to find the lowest prices from reputable pharmacies and verified retailers.
 
@@ -118,12 +118,4 @@ User
 
 ---
 
-## Team
 
-> _Add your team members here._
-
----
-
-## License
-
-> _Add your license here._
