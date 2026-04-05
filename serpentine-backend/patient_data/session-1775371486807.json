@@ -1,0 +1,57 @@
+{
+  "name": "blah bleh",
+  "age": "30",
+  "sex": "male",
+  "phone": "",
+  "email": "",
+  "symptoms": "Headache",
+  "duration": "3 days",
+  "severity": "4",
+  "medications": "No",
+  "allergies": "Milk",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "blah bleh",
+    "summary": "The patient is a 30-year-old male experiencing a moderate headache (4/10 severity) that has lasted for 3 days, with no current medications or significant medical history.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Persistent Headache",
+        "description": "Monitor the patient's headache symptoms for any changes in severity, duration, or development of new associated symptoms. If symptoms worsen or persist beyond a week, further evaluation is recommended."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Tension Headache",
+        "likelihood": "likely",
+        "explanation": "Tension headaches are very common and often present as a mild to moderate pain that lasts for several days, consistent with the patient's reported symptoms."
+      },
+      {
+        "name": "Migraine (without aura)",
+        "likelihood": "possible",
+        "explanation": "Migraines can present with moderate headaches lasting several days. While no other migraine-specific symptoms (like light/sound sensitivity, nausea) are reported, they cannot be ruled out without further information."
+      },
+      {
+        "name": "Sinus Headache",
+        "likelihood": "possible",
+        "explanation": "If the headache is localized to the face and accompanied by sinus pressure or congestion, a sinus headache could be a possibility, though no such symptoms are currently reported."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Encourage rest and adequate hydration.",
+      "Suggest trying over-the-counter pain relievers such as ibuprofen or acetaminophen, if not contraindicated by other conditions (which are not reported here).",
+      "Advise the patient to avoid potential headache triggers if any are known (e.g., specific foods, stress, lack of sleep)."
+    ],
+    "questions_for_doctor": [
+      "Are there any associated symptoms such as nausea, vomiting, visual disturbances, sensitivity to light or sound, or neck stiffness?",
+      "What is the exact character of the headache (e.g., throbbing, dull, pressure-like) and its location?",
+      "Has the patient experienced any changes in diet, sleep patterns, or stress levels recently?",
+      "Are there any specific activities or times of day when the headache is worse or better?",
+      "What is the recommended course of action if the headache worsens, persists, or new symptoms develop?"
+    ]
+  }
+}

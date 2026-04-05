@@ -1,0 +1,14 @@
+{
+  "name": "BLAH BLAH",
+  "age": "30",
+  "sex": "MALE",
+  "phone": "",
+  "email": "",
+  "symptoms": "My stomach hurts and I feel anxious",
+  "duration": "just today",
+  "severity": "5",
+  "medications": "No",
+  "allergies": "No",
+  "medical_history": "No",
+  "insurance": "UC SHIP"
+}

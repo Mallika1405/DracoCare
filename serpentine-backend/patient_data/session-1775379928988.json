@@ -1,0 +1,77 @@
+{
+  "name": "ki ru",
+  "age": "45",
+  "sex": "Female",
+  "phone": "",
+  "email": "",
+  "symptoms": "a rash on my body",
+  "duration": "like for months",
+  "severity": "7",
+  "medications": "no",
+  "allergies": "not that i know of",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "ki ru",
+    "summary": "A 45-year-old female is experiencing a severe (7/10) full-body rash that has persisted for several months, with no current medications or known allergies.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "RED_FLAG",
+        "title": "Persistent, Severe Rash",
+        "description": "A rash lasting for 'months' with a severity of 7/10 indicates a significant, chronic dermatological issue requiring professional medical diagnosis and treatment. Prolonged severe rash can lead to skin breakdown, infection, and significant discomfort."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Lack of Contact Information",
+        "description": "No phone or email provided, which may hinder follow-up communication if needed."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Eczema (Dermatitis)",
+        "likelihood": "likely",
+        "explanation": "Eczema is a common chronic inflammatory skin condition that can cause persistent, itchy, and severe rashes on various parts of the body."
+      },
+      {
+        "name": "Psoriasis",
+        "likelihood": "likely",
+        "explanation": "Psoriasis is a chronic autoimmune disease characterized by red, scaly patches on the skin which can be widespread and persist for long durations."
+      },
+      {
+        "name": "Fungal Infection (e.g., Tinea Corporis/Manuum/Pedis)",
+        "likelihood": "possible",
+        "explanation": "Widespread or untreated fungal infections can cause persistent, itchy rashes that may last for months, especially if misdiagnosed or inadequately treated."
+      },
+      {
+        "name": "Contact Dermatitis",
+        "likelihood": "possible",
+        "explanation": "While less common to be full-body and continuous for months unless there's persistent exposure to an allergen or irritant, it remains a possibility for a chronic rash."
+      },
+      {
+        "name": "Scabies",
+        "likelihood": "possible",
+        "explanation": "Scabies is caused by mites and can lead to intensely itchy, widespread rashes that persist for months if not treated, often worsening at night."
+      },
+      {
+        "name": "Autoimmune Skin Conditions (e.g., Cutaneous Lupus Erythematosus)",
+        "likelihood": "possible",
+        "explanation": "Some autoimmune diseases can manifest with chronic skin rashes that can be severe and widespread."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Schedule an urgent appointment with a dermatologist or primary care provider to properly diagnose the cause of the rash and initiate appropriate treatment.",
+      "Avoid scratching the rash as it can worsen irritation and potentially lead to secondary skin infections.",
+      "Keep a detailed log of the rash's appearance, severity, any associated symptoms (like itching, pain, fever), and anything that seems to make it better or worse, to share with the doctor."
+    ],
+    "questions_for_doctor": [
+      "What is the specific diagnosis for this persistent rash?",
+      "What are the recommended treatment options, including topical and systemic medications?",
+      "Are there any specific triggers or underlying conditions that might be contributing to the rash?",
+      "What measures can be taken to alleviate the severity of the itching and discomfort?",
+      "Are any diagnostic tests (e.g., skin biopsy, blood tests) recommended to determine the cause of the rash?"
+    ]
+  }
+}

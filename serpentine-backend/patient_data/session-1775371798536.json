@@ -1,0 +1,64 @@
+{
+  "name": "Vita min",
+  "age": "45",
+  "sex": "Male",
+  "phone": "",
+  "email": "",
+  "symptoms": "neck hurts",
+  "duration": "an hour",
+  "severity": "5",
+  "medications": "no",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Vita min",
+    "summary": "Vita min, a 45-year-old male, reports new onset neck pain at a severity of 5/10, experienced for the past hour, with no noted medical history, allergies, or current medications.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "New Onset Pain",
+        "description": "Patient is experiencing new onset neck pain (5/10) with no known cause. Monitor symptoms for worsening or development of neurological signs."
+      },
+      {
+        "severity": "GOOD",
+        "title": "Clear Medical Profile",
+        "description": "No reported medical history, allergies, or current medications simplifies initial assessment and reduces immediate interaction concerns."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Muscle Strain/Sprain",
+        "likelihood": "very likely",
+        "explanation": "Acute neck pain with no known trauma or other symptoms often points to a muscle strain or sprain from activities, awkward sleeping positions, or poor posture."
+      },
+      {
+        "name": "Tension Headache (referred pain)",
+        "likelihood": "possible",
+        "explanation": "Muscle tension in the neck and shoulders can lead to localized neck pain or pain that radiates upwards, sometimes mimicking a tension headache."
+      },
+      {
+        "name": "Cervical Spondylosis (early/minor)",
+        "likelihood": "possible",
+        "explanation": "While 45 is relatively young for advanced spondylosis, early degenerative changes in the cervical spine can sometimes cause episodic neck pain."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Rest and avoid strenuous activities that might aggravate the neck pain.",
+      "Apply a warm compress or ice pack to the affected area for 15-20 minutes, several times a day, to help reduce pain and inflammation.",
+      "Consider over-the-counter pain relievers such as acetaminophen or ibuprofen, following dosage instructions, if pain persists and there are no contraindications.",
+      "Gently stretch the neck if comfortable, but avoid any movements that worsen the pain.",
+      "Monitor for any worsening symptoms, new symptoms like numbness, tingling, weakness in arms, fever, severe headache, or vision changes, and seek medical attention if they occur."
+    ],
+    "questions_for_doctor": [
+      "What were you doing when the neck pain started?",
+      "Have you had any recent injuries, falls, or unusual physical activity?",
+      "Are you experiencing any other symptoms, such as numbness, tingling, or weakness in your arms or hands?",
+      "Does the pain radiate to any other parts of your body?",
+      "Does anything make the pain better or worse (e.g., specific movements, rest)?"
+    ]
+  }
+}

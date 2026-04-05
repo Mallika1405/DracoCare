@@ -1,0 +1,59 @@
+{
+  "name": "Spa Tre",
+  "age": "60",
+  "sex": "female",
+  "phone": "",
+  "email": "",
+  "symptoms": "neck hurts",
+  "duration": "4-5 days",
+  "severity": "5",
+  "medications": "no",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Spa Tre",
+    "summary": "Spa Tre, a 60-year-old female with no significant medical history or current medications, reports neck pain for 4-5 days with a severity of 5/10.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Incomplete Symptom Information",
+        "description": "Crucial details regarding the nature of the neck pain (e.g., onset, aggravating/alleviating factors, radiation, associated neurological symptoms, or trauma history) are missing, which are essential for proper assessment and diagnosis."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Musculoskeletal Strain",
+        "likelihood": "likely",
+        "explanation": "General neck pain without other specific symptoms often points to muscle strain from poor posture, overuse, or minor injury."
+      },
+      {
+        "name": "Cervical Spondylosis",
+        "likelihood": "possible",
+        "explanation": "Degenerative changes in the cervical spine are common at age 60 and can cause chronic neck pain, stiffness, and potentially radicular symptoms if nerve roots are involved."
+      },
+      {
+        "name": "Tension Headache",
+        "likelihood": "possible",
+        "explanation": "Neck tension can often lead to tension-type headaches, which can present as pain in the neck and head."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Apply heat or cold packs to the affected area for temporary relief.",
+      "Consider over-the-counter pain relievers like ibuprofen or acetaminophen if there are no contraindications.",
+      "Maintain good posture and avoid activities that aggravate the pain.",
+      "Consult with a doctor for a comprehensive evaluation to determine the underlying cause of the neck pain and receive appropriate treatment."
+    ],
+    "questions_for_doctor": [
+      "Can you describe the exact nature of the pain (e.g., sharp, dull, aching, throbbing, constant, intermittent)?",
+      "Does the pain radiate to your shoulders, arms, hands, or head?",
+      "Do you experience any numbness, tingling, weakness, or other neurological symptoms in your arms or hands?",
+      "Did the pain start suddenly, gradually, or after any specific incident or injury?",
+      "What makes the pain better or worse (e.g., movement, rest, specific positions, medications)?",
+      "Do you have any associated symptoms such as stiffness, fever, fatigue, or difficulty with daily activities due to the pain?"
+    ]
+  }
+}

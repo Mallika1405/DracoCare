@@ -26,6 +26,12 @@ app.add_middleware(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Mount booking router
+# ─────────────────────────────────────────────────────────────────────────────
+from booking_router import router as booking_router
+app.include_router(booking_router)
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Models
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -62,13 +68,13 @@ conversation_history = {}
 # Prompts
 # ─────────────────────────────────────────────────────────────────────────────
 
-RECEPTIONIST_PROMPT = """You are Alex, a warm and friendly medical receptionist AI.
+RECEPTIONIST_PROMPT = """You are Anita, a warm and friendly medical receptionist AI.
 
 Your goal is to collect the patient's intake information as efficiently and naturally as possible.
 
 PHASE 1 — Start here every time:
 Ask for their full name, age, and biological sex in ONE opening message.
-Example: "Hi! I'm Alex. Before we get started, could I get your full name, age, and biological sex?"
+Example: "Hi! I'm Anita. Before we get started, could I get your full name, age, and biological sex?"
 
 PHASE 2 — Lab report offer:
 Once you have name/age/sex, ask if they have any lab reports or medical documents to upload.
@@ -96,10 +102,10 @@ RULES:
 
 COMPLETION:
 Once you have name, age, sex, symptoms, duration, severity, medications, allergies, medical history, and insurance — say:
-"Great, I have everything I need. Let me get Dr. Riley for you right away."
+"Great, I have everything I need. Let me get Dr. Stitch for you right away."
 Then end your message with exactly: [READY_FOR_CONSULTATION]"""
 
-DOCTOR_PROMPT = """You are Dr. Riley, a compassionate physician.
+DOCTOR_PROMPT = """You are Dr Stitch MD, a compassionate physician.
 You will receive a full patient summary including their symptoms, history, and lab results.
 
 ALWAYS start with: "Remember, this is not professional medical advice. Please seek professional care."
@@ -208,6 +214,8 @@ Conversation to extract from:
 # Browser agent (pharmacy price finder)
 # ─────────────────────────────────────────────────────────────────────────────
 
+import asyncio
+
 def get_llm():
     from browser_use import ChatOpenAI
     return ChatOpenAI(
@@ -217,38 +225,32 @@ def get_llm():
 
 async def run_agent(drug: str, dosage: str, quantity: int):
     from browser_use import Agent
+    query = f"{drug} {dosage} {quantity} tablets".replace(" ", "+")
+    start_url = f"https://www.google.com/search?tbm=shop&q={query}"
 
     task = f"""
-Go to https://www.google.com
+Open this URL directly:
+{start_url}
 
-1. Search for "{drug} {dosage} {quantity} tablets"
-2. Click the "Shopping" tab
+Your job is STRICT:
 
-3. WAIT until results fully load.
-   You should clearly see sections like "Popular options".
+1. Ignore all sponsored products.
+2. Look at ALL visible non-sponsored product cards on the page.
+3. Extract price from EACH visible card.
+4. Compare the prices yourself.
+5. Select the LOWEST price among them.
+6. Return that product's:
+   - store
+   - price
+   - title
 
-4. Click the "Sort by" dropdown.
-5. Select "Price: low to high"
-
-6. WAIT again for results to update.
-
-7. Scroll down slowly until you see a section titled "Popular options".
-
-8. Inside "Popular options":
-   - Identify the FIRST product card (top-left item)
-
-9. CLICK that first product.
-
-10. WAIT for the product detail page to load.
-
-11. Extract:
-- product title
-- price (number only)
-- store name (seller)
-- current page URL
+IMPORTANT:
+- DO NOT just pick the first card.
+- DO NOT assume the page is sorted.
+- You MUST compare prices across multiple items.
+- If link is not visible, use current page URL.
 
 Return ONLY JSON:
-
 {{
   "store": "...",
   "price": 10.50,
@@ -256,23 +258,18 @@ Return ONLY JSON:
   "link": "..."
 }}
 
-Rules:
-- MUST click into product page before extracting
-- MUST use first item inside "Popular options"
-- Ignore sponsored results
-- Do NOT guess
-- If anything fails return: {{"found": false}}
+Stop immediately after finding the lowest price.
 """
 
-    print(f"🚀 Running browser agent for {drug} {dosage}...")
     agent = Agent(task=task, llm=get_llm())
-    result = await agent.run()
-    raw = result.final_result()
-    print(f"🧠 RAW OUTPUT: {raw}")
+    result = await asyncio.wait_for(agent.run(), timeout=180)
 
+    raw = result.final_result()
     data = safe_parse_json(raw)
+
     if not data or data.get("found") is False:
         raise ValueError("No valid result from agent")
+
     return data
 
 
@@ -300,7 +297,7 @@ async def chat(body: ChatMessage):
     response = chat_obj.send_message(body.message)
 
     conversation_history[body.session_id].append(f"patient: {body.message}")
-    conversation_history[body.session_id].append(f"alex: {response.text}")
+    conversation_history[body.session_id].append(f"Anita: {response.text}")
 
     ready_for_consultation = "[READY_FOR_CONSULTATION]" in response.text
     clean_response = response.text.replace("[READY_FOR_CONSULTATION]", "").strip()
@@ -579,10 +576,6 @@ def health():
 
 @app.post("/run", response_model=MedResult)
 async def run_med_search(req: MedRequest):
-    """
-    Launch the browser agent to find the cheapest price for one medication.
-    Falls back gracefully so the demo never hard-crashes.
-    """
     try:
         data = await run_agent(req.drug, req.dosage, req.quantity)
         return {
@@ -603,17 +596,11 @@ async def run_med_search(req: MedRequest):
 
 @app.post("/parse-prescription")
 async def parse_prescription(file: UploadFile = File(...)):
-    """
-    Accept a prescription PDF, upload it to Gemini Files API, and extract
-    all medications with dosages and quantities.
-    Returns: { status, medications: [{drug, dosage, quantity}] }
-    """
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(await file.read())
         tmp_path = tmp.name
 
     try:
-        # Upload to Gemini Files API — same pattern as /extract-labs
         uploaded_file = client.files.upload(
             file=tmp_path,
             config={"mime_type": "application/pdf"}
@@ -642,8 +629,6 @@ If no medications are found, return: []"""
         )
 
         raw = response.text.strip()
-        print(f"💊 Gemini prescription parse: {raw[:300]}")
-
         medications = safe_parse_json(raw)
 
         if not isinstance(medications, list):
@@ -672,7 +657,7 @@ If no medications are found, return: []"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Static frontend (only mounted if the static/ dir exists)
+# Static frontend
 # ─────────────────────────────────────────────────────────────────────────────
 
 if os.path.isdir("static"):

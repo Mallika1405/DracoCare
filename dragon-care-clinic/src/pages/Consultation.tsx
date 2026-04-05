@@ -88,15 +88,14 @@ const Consultation = () => {
     return (
       <div className="h-screen flex flex-col items-center justify-center gap-4"
         style={{ background: "linear-gradient(180deg, hsl(195 30% 95%) 0%, hsl(180 20% 98%) 40%, hsl(var(--background)) 100%)" }}>
-        <DragonCharacter src={dragonDoctor} alt="Dr. Sage" isSpeaking={true} className="w-32 h-32" />
+        <DragonCharacter src={dragonDoctor} alt="Dr. Stitch MD" isSpeaking={true} className="w-32 h-32" />
         <div className="flex gap-1.5">
           {[0, 1, 2].map(i => (
             <motion.div key={i} className="w-2 h-2 rounded-full bg-secondary"
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.12 }} />
+              animate={{ y: [0, -6, 0] }} transition={{ duration: 0.5, repeat: Infinity, delay: i * 0.12 }} />
           ))}
         </div>
-        <p className="text-sm text-muted-foreground font-semibold">Dr. Sage is reviewing your case...</p>
+        <p className="text-sm text-muted-foreground font-semibold">Dr. Stitch MD is reviewing your case...</p>
       </div>
     );
   }
@@ -121,21 +120,15 @@ const Consultation = () => {
           )}
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
-              <p className="text-2xl font-extrabold text-red-500">
-                {analysis.flags?.filter((f: any) => f.severity === "RED_FLAG").length || 0}
-              </p>
+              <p className="text-2xl font-extrabold text-red-500">{analysis.flags?.filter((f: any) => f.severity === "RED_FLAG").length || 0}</p>
               <p className="text-[10px] text-red-400 font-bold">Red Flags</p>
             </div>
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
-              <p className="text-2xl font-extrabold text-amber-500">
-                {analysis.flags?.filter((f: any) => f.severity === "WATCH").length || 0}
-              </p>
+              <p className="text-2xl font-extrabold text-amber-500">{analysis.flags?.filter((f: any) => f.severity === "WATCH").length || 0}</p>
               <p className="text-[10px] text-amber-400 font-bold">Watch</p>
             </div>
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
-              <p className="text-2xl font-extrabold text-emerald-500">
-                {analysis.flags?.filter((f: any) => f.severity === "GOOD").length || 0}
-              </p>
+              <p className="text-2xl font-extrabold text-emerald-500">{analysis.flags?.filter((f: any) => f.severity === "GOOD").length || 0}</p>
               <p className="text-[10px] text-emerald-400 font-bold">Good</p>
             </div>
           </div>
@@ -151,15 +144,12 @@ const Consultation = () => {
     if (section.id === "flags") {
       return (
         <div className="space-y-2">
-          {analysis.flags?.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-4">No flags found 🎉</p>
-          )}
+          {analysis.flags?.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">No flags found 🎉</p>}
           {analysis.flags?.map((flag: any, i: number) => {
             const config = flagConfig[flag.severity as keyof typeof flagConfig] || flagConfig.WATCH;
             const Icon = config.icon;
             return (
-              <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08 }}
+              <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
                 className={`${config.bg} border ${config.border} rounded-xl p-3 relative overflow-hidden`}>
                 {config.pulse && (
                   <motion.div className="absolute inset-0 bg-red-400/10 rounded-xl"
@@ -182,14 +172,11 @@ const Consultation = () => {
       return (
         <div className="space-y-2">
           {analysis.possible_conditions?.map((c: any, i: number) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }} className="bg-muted rounded-xl p-3">
+            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} className="bg-muted rounded-xl p-3">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="font-heading font-bold text-foreground text-xs">{c.name}</span>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  c.likelihood === "very likely" ? "bg-secondary/15 text-secondary"
-                  : c.likelihood === "likely" ? "bg-amber-100 text-amber-600"
-                  : "bg-gray-100 text-gray-500"
+                  c.likelihood === "very likely" ? "bg-secondary/15 text-secondary" : c.likelihood === "likely" ? "bg-amber-100 text-amber-600" : "bg-gray-100 text-gray-500"
                 }`}>{c.likelihood}</span>
               </div>
               <p className="text-xs text-muted-foreground font-body leading-relaxed">{c.explanation}</p>
@@ -203,8 +190,7 @@ const Consultation = () => {
       return (
         <div className="space-y-2">
           {analysis.recommendations?.map((rec: string, i: number) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.08 }}
+            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
               className="flex items-start gap-3 bg-muted rounded-xl p-3">
               <div className="w-6 h-6 rounded-lg bg-secondary/15 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <CheckCircle size={12} className="text-secondary" />
@@ -220,12 +206,9 @@ const Consultation = () => {
       return (
         <div className="space-y-2">
           {analysis.questions_for_doctor?.map((q: string, i: number) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
+            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
               className="flex items-start gap-3 bg-muted rounded-xl p-3">
-              <span className="w-6 h-6 rounded-full bg-secondary/15 text-secondary font-extrabold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
-                {i + 1}
-              </span>
+              <span className="w-6 h-6 rounded-full bg-secondary/15 text-secondary font-extrabold text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
               <p className="text-xs font-body text-foreground font-semibold leading-relaxed">{q}</p>
             </motion.div>
           ))}
@@ -240,15 +223,14 @@ const Consultation = () => {
       <div className="absolute top-[-100px] left-[-80px] w-72 h-72 rounded-full blur-3xl pointer-events-none" style={{ background: "hsl(195 40% 85% / 0.4)" }} />
       <div className="absolute bottom-[-80px] right-[-60px] w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "hsl(170 35% 88% / 0.3)" }} />
 
-      {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="relative z-10 px-4 py-3 flex items-center gap-3 border-b border-border bg-background/60 backdrop-blur-sm flex-shrink-0">
         <button onClick={() => navigate("/")} className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-border transition-colors">
           <ArrowLeft size={16} className="text-muted-foreground" />
         </button>
         <div className="flex items-center gap-2">
-          <img src={dragonDoctor} alt="Dr. Sage" className="w-6 h-6 rounded-full object-cover" />
-          <span className="font-heading font-extrabold text-foreground text-sm">Dr. Sage</span>
+          <img src={dragonDoctor} alt="Dr. Stitch MD" className="w-6 h-6 rounded-full object-cover" />
+          <span className="font-heading font-extrabold text-foreground text-sm">Dr. Stitch MD</span>
         </div>
         <div className="ml-auto flex items-center gap-1.5">
           <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
@@ -256,11 +238,10 @@ const Consultation = () => {
         </div>
       </motion.div>
 
-      {/* Doctor + dialogue */}
       <div className="flex flex-col items-center pt-3 pb-2 px-6 flex-shrink-0">
         <motion.div initial={{ x: 120, opacity: 0 }} animate={entranceComplete ? { x: 0, opacity: 1 } : {}}
           transition={{ type: "spring", stiffness: 80, damping: 14 }}>
-          <DragonCharacter src={dragonDoctor} alt="Dr. Sage" isSpeaking={isSpeaking} className="w-24 h-24" />
+          <DragonCharacter src={dragonDoctor} alt="Dr. Stitch MD" isSpeaking={isSpeaking} className="w-24 h-24" />
         </motion.div>
         <div className="w-full max-w-sm mt-2">
           <AnimatePresence mode="wait">
@@ -272,7 +253,6 @@ const Consultation = () => {
         </div>
       </div>
 
-      {/* Section tabs */}
       {showContent && (
         <div className="flex justify-center px-4 pb-2 flex-shrink-0">
           <div className="flex gap-1.5 overflow-x-auto">
@@ -282,8 +262,7 @@ const Consultation = () => {
                   activeSection === i ? "bg-secondary text-secondary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-border"
                 }`}>
                 {s.id === "flags" && (s as any).hasRed && activeSection !== i && (
-                  <motion.div className="w-1.5 h-1.5 rounded-full bg-red-500"
-                    animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                  <motion.div className="w-1.5 h-1.5 rounded-full bg-red-500" animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
                 )}
                 {s.title}
                 {(s as any).count && <span className="opacity-60">({(s as any).count})</span>}
@@ -293,27 +272,17 @@ const Consultation = () => {
         </div>
       )}
 
-      {/* Swipeable card */}
       {showContent && (
         <div className="flex-1 overflow-hidden px-4 min-h-0">
           <div className="max-w-sm mx-auto h-full flex flex-col">
-
-            {/* Card */}
             <div className="flex-1 min-h-0 relative">
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={activeSection}
-                  ref={cardRef}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
+                  key={activeSection} ref={cardRef}
+                  initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.2}
-                  onDragEnd={handleDragEnd}
-                  className="absolute inset-0 bg-card border-2 border-border rounded-2xl p-4 shadow-sm overflow-y-auto cursor-grab active:cursor-grabbing"
-                >
+                  drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={handleDragEnd}
+                  className="absolute inset-0 bg-card border-2 border-border rounded-2xl p-4 shadow-sm overflow-y-auto cursor-grab active:cursor-grabbing">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       {(() => {
@@ -329,7 +298,6 @@ const Consultation = () => {
               </AnimatePresence>
             </div>
 
-            {/* Nav arrows */}
             <div className="flex items-center justify-between pt-3 flex-shrink-0">
               <button onClick={goPrev} disabled={activeSection === 0}
                 className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center disabled:opacity-20 hover:bg-border transition-all">
@@ -347,19 +315,13 @@ const Consultation = () => {
               </button>
             </div>
 
-            {/* Book button */}
             <motion.button
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              onClick={() => navigate("/")}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
+              onClick={() => navigate("/booking", { state: { sessionId } })}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               className="mt-3 mb-1 w-full py-3.5 rounded-2xl text-sm font-heading font-extrabold text-white flex items-center justify-center gap-2 shadow-md flex-shrink-0"
-              style={{ background: "linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary) / 0.8))" }}
-            >
-              <Calendar size={15} />
-              Book an Appointment
+              style={{ background: "linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary) / 0.8))" }}>
+              <Calendar size={15} />Book an Appointment
             </motion.button>
 
             <p className="text-center text-[10px] text-muted-foreground font-body pb-3 flex-shrink-0">

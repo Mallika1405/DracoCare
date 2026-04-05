@@ -1,0 +1,67 @@
+{
+  "name": "Mallika Dasgupta",
+  "age": "21",
+  "sex": "Female",
+  "phone": "",
+  "email": "",
+  "symptoms": "Fever cough cold",
+  "duration": "5 days",
+  "severity": "6",
+  "medications": "tylenol",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Mallika Dasgupta",
+    "summary": "Mallika Dasgupta, a 21-year-old female, is experiencing fever, cough, and cold symptoms for 5 days with a severity of 6/10, currently taking Tylenol.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Prolonged Symptoms",
+        "description": "Symptoms lasting 5 days warrant medical evaluation, especially if not improving or worsening."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Symptom Severity",
+        "description": "A self-reported severity of 6/10 indicates moderate discomfort and may require further intervention beyond over-the-counter medication."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Common Cold",
+        "likelihood": "very likely",
+        "explanation": "Symptoms like fever, cough, and cold are highly consistent with a common viral cold."
+      },
+      {
+        "name": "Influenza (Flu)",
+        "likelihood": "likely",
+        "explanation": "Influenza can present with similar symptoms, including fever, cough, and body aches, and the 5-day duration is typical for this illness."
+      },
+      {
+        "name": "Acute Bronchitis",
+        "likelihood": "possible",
+        "explanation": "If the cough is persistent and possibly productive, bronchitis could be a consideration, often following a viral infection."
+      },
+      {
+        "name": "Sinusitis (Viral or Bacterial)",
+        "likelihood": "possible",
+        "explanation": "Prolonged cold symptoms can sometimes develop into sinusitis, especially if there is significant nasal congestion or facial pressure."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Consult a healthcare provider for an accurate diagnosis and treatment plan given the duration and severity of symptoms.",
+      "Continue symptomatic relief with Tylenol as directed, ensuring not to exceed the recommended daily dosage.",
+      "Ensure adequate rest and hydration by drinking plenty of fluids.",
+      "Monitor for any worsening symptoms such as difficulty breathing, severe chest pain, high fever unresponsive to medication, or signs of dehydration, and seek immediate medical attention if they occur."
+    ],
+    "questions_for_doctor": [
+      "What is the most likely diagnosis for my symptoms?",
+      "Are any specific tests (e.g., flu test, strep test) recommended?",
+      "What is the best course of treatment for my condition?",
+      "Are there any specific warning signs or symptoms I should watch out for that would indicate a more serious condition?"
+    ]
+  }
+}

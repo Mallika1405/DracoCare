@@ -1,0 +1,69 @@
+{
+  "name": "megz C",
+  "age": "36",
+  "sex": "Female",
+  "phone": "",
+  "email": "",
+  "symptoms": "very tired",
+  "duration": "a few days",
+  "severity": "6",
+  "medications": "vitamins",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "megz C",
+    "summary": "Megz C is a 36-year-old female reporting severe fatigue (6/10) for the past few days, currently taking only vitamins with no known allergies or significant medical history.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Unexplained Fatigue",
+        "description": "Monitor for resolution of fatigue. If symptoms worsen, new symptoms appear, or persist beyond a week, further investigation may be warranted."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Lack of Sleep/Stress",
+        "likelihood": "very likely",
+        "explanation": "Insufficient sleep, poor sleep quality, or high stress levels are frequent causes of feeling very tired."
+      },
+      {
+        "name": "Viral Infection (e.g., common cold, flu)",
+        "likelihood": "likely",
+        "explanation": "Many common viral infections can cause fatigue, often as an initial symptom, which typically resolves within a few days to a week."
+      },
+      {
+        "name": "Early Pregnancy",
+        "likelihood": "possible",
+        "explanation": "Fatigue is a very common early symptom of pregnancy due to hormonal changes, relevant for a 36-year-old female."
+      },
+      {
+        "name": "Nutritional Deficiency",
+        "likelihood": "possible",
+        "explanation": "Deficiencies in essential nutrients like iron (anemia) or B12 can lead to significant fatigue, even if taking general vitamins."
+      },
+      {
+        "name": "Hypothyroidism",
+        "likelihood": "possible",
+        "explanation": "An underactive thyroid gland can slow down metabolism, leading to persistent tiredness, among other symptoms."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Ensure adequate rest and optimize sleep hygiene.",
+      "Monitor for any new or worsening symptoms, such as fever, body aches, sore throat, or changes in mood.",
+      "Maintain good hydration and a balanced diet.",
+      "Consider avoiding strenuous activities for a few days to allow for recovery."
+    ],
+    "questions_for_doctor": [
+      "Could you describe 'very tired' more specifically (e.g., difficulty concentrating, muscle weakness, lethargy)?",
+      "Are you experiencing any other subtle symptoms, such as headache, muscle aches, sore throat, or changes in appetite?",
+      "What specific vitamins are you currently taking?",
+      "What is your typical sleep duration and quality like?",
+      "Have there been any recent changes in your diet, stress levels, or daily routine?",
+      "Is there any possibility of pregnancy?"
+    ]
+  }
+}

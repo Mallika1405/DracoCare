@@ -1,0 +1,63 @@
+{
+  "name": "klee nex",
+  "age": "34",
+  "sex": "Male",
+  "phone": "",
+  "email": "",
+  "symptoms": "feverish",
+  "duration": "5 days",
+  "severity": "5",
+  "medications": "tylenol",
+  "allergies": "milk",
+  "medical_history": "history of kidney stones",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "klee nex",
+    "summary": "Klee Nex is a 34-year-old male with a 5-day history of feverishness, currently taking Tylenol, and has a medical history of kidney stones.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Persistent Fever",
+        "description": "Klee has had a fever for 5 days. This warrants medical evaluation to determine the underlying cause and ensure appropriate treatment."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Medical History: Kidney Stones",
+        "description": "Klee has a history of kidney stones. While current symptoms are only 'feverish,' this history should be considered, especially if a urinary tract infection or stone-related complication is a possibility, even without specific urinary symptoms."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Viral Infection (e.g., common cold, flu)",
+        "likelihood": "likely",
+        "explanation": "Many viral infections can cause fever lasting several days. The general symptom of 'feverish' is consistent with this."
+      },
+      {
+        "name": "Bacterial Infection (e.g., UTI, strep throat, pneumonia)",
+        "likelihood": "possible",
+        "explanation": "A persistent fever could indicate a bacterial infection. Given the patient's history of kidney stones, a urinary tract infection (UTI) should be considered, though no specific urinary symptoms are reported."
+      },
+      {
+        "name": "Inflammatory Response",
+        "likelihood": "possible",
+        "explanation": "Fever can be a sign of systemic inflammation, which could be related to various underlying conditions."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Consult a doctor for evaluation of the persistent fever.",
+      "Continue monitoring temperature and other symptoms.",
+      "Hydrate well.",
+      "Report any new or worsening symptoms (e.g., chills, specific pain, cough, difficulty breathing)."
+    ],
+    "questions_for_doctor": [
+      "What is the likely cause of the persistent fever?",
+      "Are there any specific tests needed to diagnose the cause of the fever?",
+      "Could the fever be related to my history of kidney stones, even without specific urinary symptoms?",
+      "What is the recommended course of treatment?",
+      "Are there any warning signs I should look out for that would require immediate attention?"
+    ]
+  }
+}

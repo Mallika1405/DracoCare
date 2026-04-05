@@ -1,0 +1,55 @@
+{
+  "name": "Blah blah",
+  "age": "40",
+  "sex": "Male",
+  "phone": "",
+  "email": "",
+  "symptoms": "fever, cough cold",
+  "duration": "a week",
+  "severity": "5",
+  "medications": "",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Blah blah",
+    "summary": "A 40-year-old male is experiencing fever, cough, and cold symptoms for a week with a severity of 5/10, reporting no medical history, allergies, or current medications.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Symptom Monitoring",
+        "description": "Monitor symptoms closely for any worsening or development of new severe symptoms. If symptoms persist beyond 10-14 days or worsen significantly, seek medical attention."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Common Cold (Viral URI)",
+        "likelihood": "very likely",
+        "explanation": "The combination of fever, cough, and general 'cold' symptoms lasting a week is highly consistent with a common viral upper respiratory infection."
+      },
+      {
+        "name": "Influenza (Flu)",
+        "likelihood": "possible",
+        "explanation": "Influenza can present with similar symptoms, including fever and cough. Without more specific flu-like symptoms (e.g., body aches, chills, fatigue) or local outbreak information, it remains a possibility."
+      },
+      {
+        "name": "Acute Bronchitis",
+        "likelihood": "possible",
+        "explanation": "If the cough is prominent and persistent following the initial cold symptoms, it could indicate acute bronchitis, which is often viral."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Get adequate rest and ensure sufficient hydration by drinking plenty of fluids.",
+      "Consider over-the-counter medications like acetaminophen or ibuprofen for fever and pain relief, and decongestants or cough suppressants for symptom management, following package directions.",
+      "Avoid close contact with others to prevent potential spread of infection."
+    ],
+    "questions_for_doctor": [
+      "Are there any specific symptoms (e.g., shortness of breath, severe chest pain, high fever unresponsive to medication) that would warrant an immediate visit or emergency care?",
+      "Given the duration, is there any concern about secondary bacterial infections, and what signs should I look for?",
+      "What is the recommended timeline for symptom improvement, and when should I schedule a follow-up if symptoms persist or worsen?"
+    ]
+  }
+}

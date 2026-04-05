@@ -1,0 +1,61 @@
+{
+  "name": "Key Lock",
+  "age": "30",
+  "sex": "Female",
+  "phone": "",
+  "email": "",
+  "symptoms": "back pain, lower abdominal pain",
+  "duration": "3-4 days",
+  "severity": "7",
+  "medications": "Midol",
+  "allergies": "no known allergies",
+  "medical_history": "history of kidney stones",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Key Lock",
+    "summary": "Key Lock, a 30-year-old female with a history of kidney stones, is experiencing severe back pain and lower abdominal pain (7/10) for 3-4 days, currently taking Midol.",
+    "urgent": true,
+    "urgent_reason": "Patient reports severe pain (7/10) with a history of kidney stones and relevant symptoms (back, lower abdominal pain), which requires prompt medical evaluation to rule out acute kidney stone recurrence, obstruction, or infection.",
+    "flags": [
+      {
+        "severity": "RED_FLAG",
+        "title": "Severe Pain with Kidney Stone History",
+        "description": "Patient reports severe pain (7/10) in the back and lower abdomen, with a history of kidney stones. This combination of symptoms suggests a possible recurrence of kidney stones or a related complication (e.g., obstruction, infection) requiring urgent medical assessment to prevent further complications."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Kidney Stones (Recurrence)",
+        "likelihood": "very likely",
+        "explanation": "Given the patient's history of kidney stones and current symptoms of severe back and lower abdominal pain, a recurrence of kidney stones is highly probable. Stones can cause intense pain as they pass or if they obstruct the urinary tract."
+      },
+      {
+        "name": "Urinary Tract Infection (UTI)",
+        "likelihood": "likely",
+        "explanation": "UTIs can present with lower abdominal pain and back pain, sometimes mimicking kidney stone pain, and can be a complication of kidney stones or occur independently. The severity of pain suggests a potential upper UTI (kidney infection) or cystitis."
+      },
+      {
+        "name": "Pyelonephritis (Kidney Infection)",
+        "likelihood": "possible",
+        "explanation": "If a UTI progresses or if a kidney stone causes obstruction and subsequent infection, pyelonephritis (a more serious kidney infection) can develop, characterized by severe back pain, fever, and abdominal pain. While not explicitly mentioned, it's a critical differential to consider with severe back and abdominal pain."
+      },
+      {
+        "name": "Dysmenorrhea (Severe Menstrual Cramps)",
+        "likelihood": "possible",
+        "explanation": "As a 30-year-old female taking Midol, severe menstrual cramps could be a cause for lower abdominal pain. However, the combination with significant back pain and a history of kidney stones makes other causes more likely, but it should not be entirely ruled out."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Seek immediate medical evaluation from a doctor or urgent care clinic to diagnose the cause of the severe pain.",
+      "Monitor for additional symptoms such as fever, chills, painful urination, or blood in urine, and report them to the medical professional.",
+      "Avoid self-medicating further without professional advice, especially given the severity of pain and medical history."
+    ],
+    "questions_for_doctor": [
+      "What diagnostic tests (e.g., urinalysis, imaging) are recommended to determine the exact cause of the pain?",
+      "Is there any evidence of urinary tract obstruction or infection?",
+      "What are the immediate treatment options for pain management and to address the underlying condition?",
+      "What are the long-term recommendations to prevent future occurrences, especially concerning kidney stones?"
+    ]
+  }
+}
