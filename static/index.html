@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rx Finder</title>
+  <style>
+    body { font-family: Arial; padding: 40px; }
+    input, button { width: 100%; padding: 10px; margin: 8px 0; }
+    .card { border: 1px solid #ccc; padding: 12px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<h2>💊 Cheapest Drug Finder</h2>
+
+<input id="drug" placeholder="Drug (Atorvastatin)" />
+<input id="dosage" placeholder="Dosage (20mg)" />
+<input id="quantity" placeholder="Quantity (90)" />
+
+<button onclick="run()">Find Cheapest</button>
+
+<div id="result"></div>
+
+<script>
+async function run() {
+  const drug = document.getElementById("drug").value;
+  const dosage = document.getElementById("dosage").value;
+  const quantity = parseInt(document.getElementById("quantity").value);
+
+  const container = document.getElementById("result");
+  container.innerHTML = "⏳ Running agent...";
+
+  const res = await fetch("http://localhost:8000/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({drug, dosage, quantity})
+  });
+
+  const data = await res.json();
+
+  container.innerHTML = `
+    <div class="card">
+      <b>${data.title}</b><br><br>
+      🏪 ${data.store}<br>
+      💲 $${data.price}<br><br>
+      <a href="${data.link}" target="_blank">Open Product</a>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
