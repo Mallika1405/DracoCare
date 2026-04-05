@@ -274,20 +274,22 @@ const Consultation = () => {
 
       {/* Section tabs */}
       {showContent && (
-        <div className="flex gap-1.5 px-4 pb-2 flex-shrink-0 overflow-x-auto">
-          {sections.map((s, i) => (
-            <button key={s.id} onClick={() => setActiveSection(i)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-heading font-bold whitespace-nowrap transition-all ${
-                activeSection === i ? "bg-secondary text-secondary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-border"
-              }`}>
-              {s.id === "flags" && (s as any).hasRed && activeSection !== i && (
-                <motion.div className="w-1.5 h-1.5 rounded-full bg-red-500"
-                  animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-              )}
-              {s.title}
-              {(s as any).count && <span className="opacity-60">({(s as any).count})</span>}
-            </button>
-          ))}
+        <div className="flex justify-center px-4 pb-2 flex-shrink-0">
+          <div className="flex gap-1.5 overflow-x-auto">
+            {sections.map((s, i) => (
+              <button key={s.id} onClick={() => setActiveSection(i)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-heading font-bold whitespace-nowrap transition-all ${
+                  activeSection === i ? "bg-secondary text-secondary-foreground shadow-sm" : "bg-muted text-muted-foreground hover:bg-border"
+                }`}>
+                {s.id === "flags" && (s as any).hasRed && activeSection !== i && (
+                  <motion.div className="w-1.5 h-1.5 rounded-full bg-red-500"
+                    animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                )}
+                {s.title}
+                {(s as any).count && <span className="opacity-60">({(s as any).count})</span>}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -345,7 +347,7 @@ const Consultation = () => {
               </button>
             </div>
 
-            {/* Always visible book button */}
+            {/* Book button */}
             <motion.button
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
