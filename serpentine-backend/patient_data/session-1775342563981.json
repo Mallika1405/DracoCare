@@ -1,0 +1,66 @@
+{
+  "name": "Kiru Blah",
+  "phone": "6197628722",
+  "email": "mallikadasgupta1405@gmail.com",
+  "symptoms": "stomach ache, fever, headache",
+  "duration": "over a week",
+  "severity": "7",
+  "medications": "no",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Kiru Blah",
+    "summary": "Kiru Blah is experiencing a severe stomach ache, fever, and headache that has persisted for over a week, requiring prompt medical evaluation.",
+    "urgent": true,
+    "urgent_reason": "The combination of severe stomach ache, fever, and headache lasting over a week indicates a potentially serious underlying condition that requires immediate medical attention to prevent complications.",
+    "flags": [
+      {
+        "severity": "RED_FLAG",
+        "title": "Prolonged Severe Symptoms",
+        "description": "The patient has been experiencing severe stomach ache, fever, and headache for over a week (severity 7/10). This duration and intensity, especially with no medical history or current medications, warrants urgent medical consultation to diagnose and treat any underlying serious conditions."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Meningitis",
+        "likelihood": "possible",
+        "explanation": "Severe headache and fever are classic symptoms of meningitis, and while stomach ache is less common, it can occur. Given the prolonged duration, this serious condition needs to be ruled out promptly."
+      },
+      {
+        "name": "Appendicitis or other acute abdominal condition",
+        "likelihood": "possible",
+        "explanation": "Persistent severe stomach ache, especially with fever, could indicate appendicitis or another acute abdominal issue that may require surgical intervention. Location of pain would be crucial here."
+      },
+      {
+        "name": "Severe Viral or Bacterial Infection",
+        "likelihood": "likely",
+        "explanation": "The combination of fever, headache, and stomach ache for over a week is consistent with a systemic viral or bacterial infection, which, due to its severity and duration, may require medical intervention."
+      },
+      {
+        "name": "Urinary Tract Infection (UTI) / Pyelonephritis",
+        "likelihood": "possible",
+        "explanation": "A severe UTI, particularly one that has progressed to the kidneys (pyelonephritis), can cause fever and abdominal pain. Headache can be a general symptom of systemic infection."
+      },
+      {
+        "name": "Inflammatory Bowel Disease (IBD) flare-up",
+        "likelihood": "possible",
+        "explanation": "While no medical history is provided, IBD can present with chronic abdominal pain and fever during a flare-up. Headache could be secondary to systemic inflammation."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Seek immediate medical attention from a doctor or urgent care facility for a thorough physical examination, diagnostic tests (e.g., blood work, urinalysis, imaging), and accurate diagnosis.",
+      "Do not self-medicate with over-the-counter drugs that could mask symptoms or interact with potential treatments without professional medical advice.",
+      "Monitor for any worsening of symptoms, new symptoms (e.g., stiff neck, rash, severe vomiting, confusion), or changes in pain localization, and report them immediately to the healthcare provider.",
+      "Stay hydrated by drinking plenty of clear fluids, if tolerated."
+    ],
+    "questions_for_doctor": [
+      "What specific diagnostic tests (e.g., blood count, inflammatory markers, urine analysis, abdominal imaging, lumbar puncture) are recommended to determine the cause of these prolonged symptoms?",
+      "Are there any specific 'red flag' symptoms I should watch for that would necessitate an emergency room visit rather than an urgent care visit?",
+      "What are the most serious conditions that need to be ruled out given the duration and severity of the fever, headache, and stomach ache?",
+      "What is the preliminary management plan while awaiting diagnostic results?",
+      "Could this be related to a particular type of infection, and if so, what is the recommended treatment?"
+    ]
+  }
+}

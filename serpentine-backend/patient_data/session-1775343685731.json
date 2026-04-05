@@ -1,0 +1,71 @@
+{
+  "lab_results": "```json\n{\n  \"patient_name\": \"James Rivera\",\n  \"date_of_test\": \"04/04/2026\",\n  \"labs\": [\n    {\n      \"name\": \"LDL Cholesterol\",\n      \"value\": \"187\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"Optimal <100\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"Total Cholesterol\",\n      \"value\": \"241\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"Desirable <200\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"HDL Cholesterol\",\n      \"value\": \"38\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"Normal >40 (men)\",\n      \"status\": \"LOW\"\n    },\n    {\n      \"name\": \"Triglycerides\",\n      \"value\": \"178\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"Normal <150\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"VLDL Cholesterol\",\n      \"value\": \"36\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"Normal 2-30\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"HbA1c\",\n      \"value\": \"7.2\",\n      \"unit\": \"%\",\n      \"reference_range\": \"Normal <5.7%\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"Fasting Glucose\",\n      \"value\": \"142\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"Normal 70-99\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"Insulin (fasting)\",\n      \"value\": \"18.4\",\n      \"unit\": \"ulU/mL\",\n      \"reference_range\": \"Normal 2.6-24.9\",\n      \"status\": \"NORMAL\"\n    },\n    {\n      \"name\": \"Sodium\",\n      \"value\": \"138\",\n      \"unit\": \"mEq/L\",\n      \"reference_range\": \"136-145\",\n      \"status\": \"NORMAL\"\n    },\n    {\n      \"name\": \"Potassium\",\n      \"value\": \"3.4\",\n      \"unit\": \"mEq/L\",\n      \"reference_range\": \"3.5-5.1\",\n      \"status\": \"LOW\"\n    },\n    {\n      \"name\": \"Creatinine\",\n      \"value\": \"1.3\",\n      \"unit\": \"mg/dL\",\n      \"reference_range\": \"0.7-1.2 (men)\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"eGFR\",\n      \"value\": \"58\",\n      \"unit\": \"mL/min\",\n      \"reference_range\": \">60\",\n      \"status\": \"LOW\"\n    },\n    {\n      \"name\": \"ALT\",\n      \"value\": \"52\",\n      \"unit\": \"U/L\",\n      \"reference_range\": \"7-40\",\n      \"status\": \"HIGH\"\n    },\n    {\n      \"name\": \"AST\",\n      \"value\": \"48\",\n      \"unit\": \"U/L\",\n      \"reference_range\": \"10-40\",\n      \"status\": \"HIGH\"\n    }\n  ],\n  \"medications\": [\n    {\n      \"name\": \"Atorvastatin\",\n      \"dosage\": \"20mg\",\n      \"frequency\": \"Once daily at bedtime\"\n    },\n    {\n      \"name\": \"Metformin\",\n      \"dosage\": \"500mg\",\n      \"frequency\": \"Twice daily with meals\"\n    },\n    {\n      \"name\": \"Azithromycin\",\n      \"dosage\": \"250mg\",\n      \"frequency\": \"Once daily (Z-Pack day 3 of 5)\"\n    }\n  ]\n}\n```",
+  "name": "Mallika Dasgupta",
+  "phone": "6197628722",
+  "email": "mallikadasgupta1405@gmail.com",
+  "symptoms": "backpain, weird rash on my body",
+  "duration": "over two weeks",
+  "severity": "6",
+  "medications": "no",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "Mallika Dasgupta",
+    "summary": "Mallika Dasgupta reports persistent back pain and a weird rash on her body for over two weeks, rated 6/10 in severity, with no known allergies, medical history, or current medications.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "RED_FLAG",
+        "title": "Patient Data Discrepancy",
+        "description": "The provided lab results are explicitly for 'James Rivera' and list current medications (Atorvastatin, Metformin, Azithromycin), which directly contradicts Mallika Dasgupta's statement of having 'no current medications'. These lab results cannot be attributed to Mallika Dasgupta without clarification and should not be used for her analysis."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Persistent Unexplained Symptoms",
+        "description": "Back pain and a 'weird rash' lasting over two weeks with a severity of 6/10 warrant prompt medical evaluation to determine the underlying cause and rule out more serious conditions."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Viral Exanthem",
+        "likelihood": "possible",
+        "explanation": "Viral infections can cause a variety of rashes and systemic symptoms like body aches or back pain."
+      },
+      {
+        "name": "Allergic Reaction (cutaneous/systemic)",
+        "likelihood": "possible",
+        "explanation": "A rash could be an allergic reaction to environmental factors, food, or contactants, potentially accompanied by body discomfort."
+      },
+      {
+        "name": "Contact Dermatitis",
+        "likelihood": "possible",
+        "explanation": "If the rash is localized, it could be an inflammatory reaction to something the skin has touched."
+      },
+      {
+        "name": "Musculoskeletal Strain/Injury",
+        "likelihood": "possible",
+        "explanation": "Back pain is very common and can be due to muscle strain or minor injury, often unrelated to a rash."
+      },
+      {
+        "name": "Early Autoimmune Condition",
+        "likelihood": "possible",
+        "explanation": "Some autoimmune diseases can present with both skin manifestations (rash) and musculoskeletal pain, including back pain."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Schedule an urgent appointment with a primary care physician or dermatologist for a thorough evaluation of both the back pain and the 'weird rash'.",
+      "Be prepared to provide more specific details about the rash (e.g., location, appearance, itching, blistering, spread) and the back pain (e.g., specific area, aggravating/relieving factors, radiation).",
+      "Avoid applying any unprescribed creams or remedies to the rash until a diagnosis is made, as this could alter its appearance and make diagnosis more difficult."
+    ],
+    "questions_for_doctor": [
+      "Are the lab results for 'James Rivera' relevant to my case or an error in my file?",
+      "What are the most likely causes for both the back pain and the rash given their duration and my lack of medical history?",
+      "Are these two symptoms potentially related, or should they be investigated as separate issues?",
+      "What diagnostic tests (e.g., blood tests, imaging for back, skin biopsy for rash) might be necessary to determine the underlying cause?",
+      "What are the initial treatment options for managing both the back pain and the rash?"
+    ]
+  }
+}

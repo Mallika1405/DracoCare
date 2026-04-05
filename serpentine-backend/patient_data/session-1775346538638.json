@@ -1,0 +1,118 @@
+{
+  "lab_results": "```json\n{\n    \"patient_name\": \"James Rivera\",\n    \"age\": \"47\",\n    \"sex\": \"Male\",\n    \"date_of_test\": \"04/04/2026\",\n    \"symptoms_mentioned\": \"\",\n    \"medications\": [\n        {\n            \"name\": \"Atorvastatin\",\n            \"dosage\": \"20mg\",\n            \"frequency\": \"Once daily at bedtime\"\n        },\n        {\n            \"name\": \"Metformin\",\n            \"dosage\": \"500mg\",\n            \"frequency\": \"Twice daily with meals\"\n        },\n        {\n            \"name\": \"Azithromycin\",\n            \"dosage\": \"250mg\",\n            \"frequency\": \"Once daily (Z-Pack day 3 of 5)\"\n        }\n    ],\n    \"allergies\": \"\",\n    \"medical_history\": \"\",\n    \"insurance\": \"\",\n    \"labs\": [\n        {\n            \"name\": \"LDL Cholesterol\",\n            \"value\": \"187\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"Optimal <100\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"Total Cholesterol\",\n            \"value\": \"241\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"Desirable <200\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"HDL Cholesterol\",\n            \"value\": \"38\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"Normal >40 (men)\",\n            \"status\": \"LOW\"\n        },\n        {\n            \"name\": \"Triglycerides\",\n            \"value\": \"178\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"Normal <150\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"VLDL Cholesterol\",\n            \"value\": \"36\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"Normal 2-30\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"HbA1c\",\n            \"value\": \"7.2\",\n            \"unit\": \"%\",\n            \"reference_range\": \"Normal <5.7%\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"Fasting Glucose\",\n            \"value\": \"142\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"Normal 70-99\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"Insulin (fasting)\",\n            \"value\": \"18.4\",\n            \"unit\": \"ulU/mL\",\n            \"reference_range\": \"Normal 2.6-24.9\",\n            \"status\": \"NORMAL\"\n        },\n        {\n            \"name\": \"Sodium\",\n            \"value\": \"138\",\n            \"unit\": \"mEq/L\",\n            \"reference_range\": \"136-145\",\n            \"status\": \"NORMAL\"\n        },\n        {\n            \"name\": \"Potassium\",\n            \"value\": \"3.4\",\n            \"unit\": \"mEq/L\",\n            \"reference_range\": \"3.5-5.1\",\n            \"status\": \"LOW\"\n        },\n        {\n            \"name\": \"Creatinine\",\n            \"value\": \"1.3\",\n            \"unit\": \"mg/dL\",\n            \"reference_range\": \"0.7-1.2 (men)\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"eGFR\",\n            \"value\": \"58\",\n            \"unit\": \"mL/min\",\n            \"reference_range\": \">60\",\n            \"status\": \"LOW\"\n        },\n        {\n            \"name\": \"ALT\",\n            \"value\": \"52\",\n            \"unit\": \"U/L\",\n            \"reference_range\": \"7-40\",\n            \"status\": \"HIGH\"\n        },\n        {\n            \"name\": \"AST\",\n            \"value\": \"48\",\n            \"unit\": \"U/L\",\n            \"reference_range\": \"10-40\",\n            \"status\": \"HIGH\"\n        }\n    ]\n}\n```",
+  "name": "James Rivera",
+  "age": "24",
+  "sex": "Male",
+  "medications": "",
+  "phone": "",
+  "email": "",
+  "symptoms": "feverish and I have a stomach ache",
+  "duration": "over 5 days",
+  "severity": "4",
+  "allergies": "Not really",
+  "medical_history": "No",
+  "insurance": "Don't have one",
+  "analysis": {
+    "patient_name": "James Rivera",
+    "summary": "James Rivera presents with acute symptoms of fever and stomach ache ongoing for over 5 days, combined with severely concerning lab results indicating poorly controlled type 2 diabetes, severe dyslipidemia despite medication, stage 3 chronic kidney disease, elevated liver enzymes, and low potassium.",
+    "urgent": true,
+    "urgent_reason": "The patient has acute symptoms (fever, stomach ache for 5 days) coupled with multiple critical lab abnormalities including poorly controlled diabetes, stage 3 chronic kidney disease (eGFR 58 mL/min), severe dyslipidemia, elevated liver enzymes, and low potassium, which require immediate medical attention to prevent complications and review medication safety.",
+    "flags": [
+      {
+        "severity": "RED_FLAG",
+        "title": "Age Discrepancy",
+        "description": "The patient summary lists age as 24, while lab results list age as 47. This critical discrepancy must be clarified immediately as it impacts medical history, treatment decisions, and reference ranges for lab values."
+      },
+      {
+        "severity": "RED_FLAG",
+        "title": "Poorly Controlled Type 2 Diabetes",
+        "description": "HbA1c of 7.2% and Fasting Glucose of 142 mg/dL indicate that diabetes is not well-controlled, despite being on Metformin. This requires immediate review of the treatment plan and potential dose adjustments or additional medications."
+      },
+      {
+        "severity": "RED_FLAG",
+        "title": "Stage 3 Chronic Kidney Disease (CKD)",
+        "description": "eGFR of 58 mL/min and elevated Creatinine of 1.3 mg/dL indicate Stage 3 CKD. This requires urgent investigation into the cause, potential for progression, and careful management of medications, especially Metformin."
+      },
+      {
+        "severity": "RED_FLAG",
+        "title": "Severe Dyslipidemia",
+        "description": "LDL (187), Total Cholesterol (241), Triglycerides (178), and VLDL (36) are all high, while HDL (38) is low, despite being on Atorvastatin. This indicates a high risk for cardiovascular events and requires urgent review and adjustment of lipid-lowering therapy."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Elevated Liver Enzymes",
+        "description": "ALT (52 U/L) and AST (48 U/L) are elevated, which could be related to medications (e.g., Atorvastatin), non-alcoholic fatty liver disease (common with diabetes/dyslipidemia), or other liver pathology. Further investigation is warranted."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Low Potassium",
+        "description": "Potassium level of 3.4 mEq/L is slightly low. While not critically low, it warrants monitoring, especially with potential kidney issues, and evaluation for possible causes or contributing factors."
+      },
+      {
+        "severity": "WATCH",
+        "title": "Acute Symptoms (Fever and Stomach Ache)",
+        "description": "The patient's reported symptoms of fever and stomach ache for over 5 days, with a severity of 4/10, require prompt medical evaluation to rule out an underlying infection or other acute condition, especially in the context of multiple chronic health issues."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Type 2 Diabetes Mellitus",
+        "likelihood": "very likely",
+        "explanation": "High HbA1c (7.2%) and Fasting Glucose (142 mg/dL) confirm poorly controlled diabetes."
+      },
+      {
+        "name": "Dyslipidemia/Hypercholesterolemia",
+        "likelihood": "very likely",
+        "explanation": "All major lipid markers (LDL, Total Cholesterol, Triglycerides, VLDL) are elevated and HDL is low, despite being on Atorvastatin."
+      },
+      {
+        "name": "Chronic Kidney Disease (Stage 3)",
+        "likelihood": "very likely",
+        "explanation": "eGFR of 58 mL/min and elevated Creatinine (1.3 mg/dL) are consistent with Stage 3 CKD."
+      },
+      {
+        "name": "Non-alcoholic Fatty Liver Disease (NAFLD)",
+        "likelihood": "likely",
+        "explanation": "Elevated ALT and AST, combined with poorly controlled diabetes and dyslipidemia, make NAFLD a likely possibility."
+      },
+      {
+        "name": "Acute Gastroenteritis or other infection",
+        "likelihood": "possible",
+        "explanation": "The symptoms of fever and stomach ache for 5 days could indicate an acute infection requiring diagnosis and treatment."
+      }
+    ],
+    "drug_interactions": [
+      {
+        "drug1": "Metformin",
+        "drug2": "Impaired Renal Function (eGFR < 60 mL/min)",
+        "interaction_type": "Contraindication/Precaution",
+        "severity": "Severe",
+        "description": "Metformin is generally contraindicated or requires dose adjustment with an eGFR below 60 mL/min due to an increased risk of lactic acidosis. The patient's eGFR is 58 mL/min."
+      },
+      {
+        "drug1": "Atorvastatin",
+        "drug2": "Azithromycin",
+        "interaction_type": "Pharmacokinetic",
+        "severity": "Moderate",
+        "description": "Azithromycin can inhibit CYP3A4, which is involved in Atorvastatin metabolism. This can increase Atorvastatin levels, potentially leading to an increased risk of myopathy or rhabdomyolysis. Careful monitoring is advised, and a temporary cessation or dose adjustment of Atorvastatin may be considered while on Azithromycin."
+      }
+    ],
+    "recommendations": [
+      "Seek immediate medical evaluation with a healthcare provider to address acute symptoms (fever, stomach ache) and thoroughly review all lab results and current medications.",
+      "Review and adjust the diabetes management plan, potentially including dose changes for Metformin (or discontinuation) and consideration of additional glucose-lowering agents.",
+      "Review and adjust the lipid-lowering therapy due to poorly controlled dyslipidemia despite Atorvastatin.",
+      "Further investigate the cause of reduced kidney function (eGFR 58 mL/min) and elevated liver enzymes, and develop a comprehensive management plan for CKD and potential NAFLD.",
+      "Provide counseling on lifestyle modifications, including diet and exercise, to help manage diabetes, dyslipidemia, and kidney health.",
+      "Monitor potassium levels closely and investigate potential causes of hypokalemia."
+    ],
+    "questions_for_doctor": [
+      "What is the correct age of the patient (24 vs. 47) as indicated in different records, and how does this affect medical history and treatment?",
+      "What is the diagnosis and appropriate treatment for the current fever and stomach ache that have persisted for over 5 days?",
+      "How should Metformin be managed given the patient's eGFR of 58 mL/min to mitigate the risk of lactic acidosis?",
+      "Are Atorvastatin and Azithromycin safe to continue concurrently, and what monitoring or adjustments are needed due to the potential drug interaction?",
+      "What are the next steps for managing the patient's poorly controlled diabetes (HbA1c 7.2%, fasting glucose 142 mg/dL) and severe dyslipidemia?",
+      "What is the cause of the elevated liver enzymes (ALT 52, AST 48), and what further diagnostic tests or management strategies are recommended?",
+      "What are the implications of the eGFR of 58 mL/min and elevated creatinine (1.3 mg/dL), and what specific measures should be taken to manage and monitor kidney function?"
+    ]
+  }
+}

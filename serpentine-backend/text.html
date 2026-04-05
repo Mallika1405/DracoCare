@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Serpentine Test</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
+        #messages { height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+        .user { text-align: right; margin: 10px 0; }
+        .user span { background: #007bff; color: white; padding: 8px 12px; border-radius: 12px; display: inline-block; max-width: 80%; text-align: left; }
+        .alex { text-align: left; margin: 10px 0; }
+        .alex span { background: #f0f0f0; padding: 8px 12px; border-radius: 12px; display: inline-block; max-width: 80%; }
+        .doctor { text-align: left; margin: 10px 0; }
+        .doctor span { background: #e8f5e9; padding: 8px 12px; border-radius: 12px; display: inline-block; max-width: 80%; }
+        .character-label { font-size: 11px; color: #999; margin-bottom: 2px; }
+        #phase { font-weight: bold; color: #007bff; margin-bottom: 10px; }
+        #input-area { display: flex; gap: 8px; align-items: center; }
+        #input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
+        #send-btn { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        #mic-btn { padding: 10px 15px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        #mic-btn.recording { background: #dc3545; }
+        #voice-toggle { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
+        
+        /* PDF Upload */
+        #upload-area { 
+            display: none; 
+            margin: 10px 0; 
+            padding: 12px; 
+            background: #fff8e1; 
+            border: 2px dashed #ffc107; 
+            border-radius: 8px;
+            text-align: center;
+        }
+        #upload-area.visible { display: block; }
+        #upload-area p { font-size: 13px; color: #666; margin-bottom: 8px; }
+        #pdf-input { display: none; }
+        #upload-btn { 
+            padding: 8px 16px; background: #ffc107; color: #333; 
+            border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; font-size: 13px; margin-right: 8px;
+        }
+        #skip-btn { 
+            padding: 8px 16px; background: #f0f0f0; color: #666; 
+            border: none; border-radius: 8px; cursor: pointer; font-size: 13px; 
+        }
+        #upload-status { font-size: 12px; color: #28a745; margin-top: 6px; }
+    </style>
+</head>
+<body>
+    <h2>🐍 Serpentine</h2>
+    <div id="phase">Phase 1 — Talking to Alex (Receptionist)</div>
+    
+    <div id="voice-toggle">
+        <input type="checkbox" id="speak-responses" checked/>
+        <label for="speak-responses">Speak responses aloud</label>
+    </div>
+
+    <div id="messages"></div>
+
+    <!-- PDF Upload Area (hidden until Alex asks) -->
+    <div id="upload-area">
+        <p>📄 Upload your lab results PDF</p>
+        <input type="file" id="pdf-input" accept=".pdf"/>
+        <button id="upload-btn" onclick="document.getElementById('pdf-input').click()">📎 Choose PDF</button>
+        <button id="skip-btn" onclick="skipUpload()">Skip — I don't have one</button>
+        <div id="upload-status"></div>
+    </div>
+
+    <div id="input-area">
+        <input type="text" id="input" placeholder="Type or speak your message..." 
+            onkeydown="if(event.key==='Enter') sendMessage()"/>
+        <button id="send-btn" onclick="sendMessage()">Send</button>
+        <button id="mic-btn" onclick="toggleVoice()">🎤</button>
+    </div>
+
+    <script>
+        let phase = "intake";
+        const sessionId = "test-session-" + Date.now();
+        let isRecording = false;
+        let recognition = null;
+        let labsUploaded = false;
+
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        }
+
+        // watch for file selection
+        document.getElementById("pdf-input").addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            document.getElementById("upload-status").textContent = "⏳ Uploading and reading your lab results...";
+            
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("session_id", sessionId);
+            
+            try {
+                const res = await fetch("http://localhost:8000/extract-labs", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.status === "success") {
+                    labsUploaded = true;
+                    document.getElementById("upload-status").textContent = "✅ Lab results uploaded successfully!";
+                    document.getElementById("upload-btn").style.background = "#28a745";
+                    document.getElementById("upload-btn").style.color = "white";
+                    document.getElementById("upload-btn").textContent = "✅ Uploaded";
+                    
+                    // tell Alex labs were uploaded
+                    setTimeout(() => {
+                        hideUpload();
+                        sendMessageText("I've uploaded my lab results");
+                    }, 1000);
+                }
+            } catch {
+                document.getElementById("upload-status").textContent = "❌ Upload failed. Please try again.";
+            }
+        });
+
+        function showUpload() {
+            document.getElementById("upload-area").classList.add("visible");
+        }
+
+        function hideUpload() {
+            document.getElementById("upload-area").classList.remove("visible");
+        }
+
+        function skipUpload() {
+            hideUpload();
+            sendMessageText("I don't have any lab results to upload");
+        }
+
+        function checkForLabQuestion(text) {
+            const labKeywords = ["lab results", "lab report", "upload", "test results", "blood work", "bloodwork"];
+            return labKeywords.some(k => text.toLowerCase().includes(k));
+        }
+
+        // --- VOICE INPUT ---
+        function toggleVoice() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Voice not supported. Please use Chrome.");
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                isRecording = true;
+                const btn = document.getElementById("mic-btn");
+                btn.textContent = "⏹";
+                btn.classList.add("recording");
+            }
+
+            recognition.onresult = (event) => {
+                const transcript = Array.from(event.results)
+                    .map(r => r[0].transcript)
+                    .join(' ');
+                document.getElementById("input").value = transcript;
+            }
+
+            recognition.onend = () => {
+                isRecording = false;
+                const btn = document.getElementById("mic-btn");
+                btn.textContent = "🎤";
+                btn.classList.remove("recording");
+                if (document.getElementById("input").value.trim()) {
+                    sendMessage();
+                }
+            }
+
+            recognition.onerror = (event) => {
+                console.error("Speech error:", event.error);
+                isRecording = false;
+                document.getElementById("mic-btn").textContent = "🎤";
+                document.getElementById("mic-btn").classList.remove("recording");
+            }
+
+            recognition.start();
+        }
+
+        // --- VOICE OUTPUT ---
+        function speakText(text, character) {
+            if (!document.getElementById("speak-responses").checked) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.volume = 1;
+            const voices = window.speechSynthesis.getVoices();
+            if (character === "doctor") {
+                utterance.pitch = 0.85;
+                utterance.rate = 0.85;
+                const voice = voices.find(v =>
+                    v.name === "Google UK English Male" ||
+                    v.name.includes("Daniel") ||
+                    v.name.includes("Arthur")
+                );
+                if (voice) utterance.voice = voice;
+            } else {
+                utterance.pitch = 1.1;
+                utterance.rate = 0.9;
+                const voice = voices.find(v =>
+                    v.name === "Google US English" ||
+                    v.name === "Samantha" ||
+                    v.name === "Karen"
+                );
+                if (voice) utterance.voice = voice;
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- MESSAGES ---
+        function addMessage(text, sender, character) {
+            const messages = document.getElementById("messages");
+            const div = document.createElement("div");
+            div.className = sender === "user" ? "user" : (character === "doctor" ? "doctor" : "alex");
+            
+            const label = document.createElement("div");
+            label.className = "character-label";
+            label.textContent = sender === "user" ? "You" : (character === "doctor" ? "Dr. Riley" : "Alex");
+            
+            const span = document.createElement("span");
+            span.textContent = text;
+            
+            div.appendChild(label);
+            div.appendChild(span);
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+
+            if (sender !== "user") {
+                speakText(text, character);
+                // show upload area if Alex asks about lab results
+                if (character === "receptionist" && checkForLabQuestion(text) && !labsUploaded) {
+                    setTimeout(showUpload, 500);
+                }
+            }
+        }
+
+        // send a message programmatically
+        async function sendMessageText(text) {
+            addMessage(text, "user");
+            const res = await fetch("http://localhost:8000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text, session_id: sessionId })
+            });
+            const data = await res.json();
+            addMessage(data.response, "assistant", "receptionist");
+
+            if (data.ready_for_consultation) {
+                await switchToDoctor();
+            }
+        }
+
+        async function switchToDoctor() {
+            phase = "consultation";
+            document.getElementById("phase").textContent = "Phase 2 — Talking to Dr. Riley";
+            document.getElementById("phase").style.color = "#2e7d32";
+
+            const docRes = await fetch("http://localhost:8000/consultation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: "The patient is ready.", session_id: sessionId })
+            });
+            const docData = await docRes.json();
+            addMessage(docData.response, "assistant", "doctor");
+        }
+
+        // --- SEND MESSAGE ---
+        async function sendMessage() {
+            const input = document.getElementById("input");
+            const message = input.value.trim();
+            if (!message) return;
+            
+            addMessage(message, "user");
+            input.value = "";
+
+            if (phase === "intake") {
+                const res = await fetch("http://localhost:8000/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message, session_id: sessionId })
+                });
+                const data = await res.json();
+                addMessage(data.response, "assistant", "receptionist");
+                
+                if (data.ready_for_consultation) {
+                    await switchToDoctor();
+                }
+            } else {
+                const res = await fetch("http://localhost:8000/consultation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message, session_id: sessionId })
+                });
+                const data = await res.json();
+                addMessage(data.response, "assistant", "doctor");
+
+                if (data.wants_appointment) {
+                    addMessage("Finding clinics near you... 📍", "assistant", "doctor");
+                }
+            }
+        }
+
+        // auto greeting
+        window.onload = async () => {
+            const res = await fetch("http://localhost:8000/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: "hello", session_id: sessionId })
+            });
+            const data = await res.json();
+            addMessage(data.response, "assistant", "receptionist");
+        }
+    </script>
+</body>
+</html>
