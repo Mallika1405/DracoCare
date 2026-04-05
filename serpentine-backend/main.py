@@ -423,18 +423,23 @@ async def extract_labs(
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         tmp.write(await file.read())
         tmp_path = tmp.name
+    loop = asyncio.get_event_loop()
 
     try:
-        uploaded_file = client.files.upload(
-            file=tmp_path,
-            config={"mime_type": "application/pdf"}
+        uploaded_file = await loop.run_in_executor(
+            None, lambda: client.files.upload(
+                file=tmp_path,
+                config={"mime_type": "application/pdf"}
+            )
         )
+        
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=[
-                uploaded_file,
-                """Extract all information from this medical document. Return ONLY raw JSON, no markdown:
+        response = await loop.run_in_executor(
+            None, lambda: client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[
+                    uploaded_file,
+                    """Extract all information from this medical document. Return ONLY raw JSON, no markdown:
 {
     "patient_name": "",
     "age": "",
@@ -453,7 +458,9 @@ async def extract_labs(
 }"""
             ]
         )
-
+    )
+    
+    
         if session_id not in patient_store:
             patient_store[session_id] = {}
         patient_store[session_id]["lab_results"] = response.text
@@ -490,14 +497,20 @@ async def extract_labs(
                 system_instruction="You summarise medical lab documents into plain English for a receptionist AI. Be concise."
             )
         )
-        summary_resp = summary_chat.send_message(
-            f"Summarise what patient information and lab results are present in this data, in 3-5 sentences:\n{response.text}"
+        summary_resp = await loop.run_in_executor(
+            None,lambda: summary_chat.send_message(
+                f"Summarise what patient information and lab results are present in this data, in 3-5 sentences:\n{response.text}"
+            )
         )
 
         return {"extracted": response.text, "summary": summary_resp.text, "status": "success"}
-
+    except Exception as e:
+        return {"status": "error", "message": f"Lab extraction failed: {e}"}
     finally:
-        os.unlink(tmp_path)
+        try:
+            os.unlink(tmp_path)
+        except:
+            pass
 
 
 @app.post("/notify-lab-upload")
