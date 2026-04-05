@@ -1,0 +1,14 @@
+{
+  "name": "bel bhal",
+  "age": "63",
+  "sex": "female",
+  "phone": "6197628722",
+  "email": "mallikadasgupta1405@gmail.com",
+  "symptoms": "nausea vomitting",
+  "duration": "4 days",
+  "severity": "4-5",
+  "medications": "no",
+  "allergies": "no",
+  "medical_history": "no",
+  "insurance": "UC SHIP"
+}

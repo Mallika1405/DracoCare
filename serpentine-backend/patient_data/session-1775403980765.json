@@ -1,0 +1,68 @@
+{
+  "name": "kirk range",
+  "age": "34",
+  "sex": "male",
+  "phone": "8587523474",
+  "email": "mallikadasgupta1405@gmail.com",
+  "symptoms": "stomach ache",
+  "duration": "2-3 days",
+  "severity": "6",
+  "medications": "",
+  "allergies": "",
+  "medical_history": "",
+  "insurance": "UC SHIP",
+  "analysis": {
+    "patient_name": "kirk range",
+    "summary": "Kirk Range, a 34-year-old male, presents with a 2-3 day history of stomach ache, rated 6/10 in severity, with no known current medications, allergies, or medical history.",
+    "urgent": false,
+    "urgent_reason": "",
+    "flags": [
+      {
+        "severity": "WATCH",
+        "title": "Persistent Moderate Stomach Ache",
+        "description": "A stomach ache of 6/10 severity lasting 2-3 days warrants medical evaluation to determine the underlying cause and ensure no serious condition is developing or progressing."
+      }
+    ],
+    "possible_conditions": [
+      {
+        "name": "Gastritis/Indigestion",
+        "likelihood": "likely",
+        "explanation": "Inflammation of the stomach lining or general indigestion can cause moderate abdominal pain, often lasting a few days."
+      },
+      {
+        "name": "Gastroenteritis (Stomach Flu)",
+        "likelihood": "likely",
+        "explanation": "Viral or bacterial infection of the stomach and intestines commonly causes stomach ache, sometimes accompanied by nausea, vomiting, or diarrhea (though not reported here)."
+      },
+      {
+        "name": "Constipation",
+        "likelihood": "possible",
+        "explanation": "Infrequent bowel movements or difficulty passing stool can lead to abdominal pain and discomfort."
+      },
+      {
+        "name": "Appendicitis",
+        "likelihood": "possible",
+        "explanation": "Inflammation of the appendix can cause abdominal pain, which may start vaguely and then localize to the lower right abdomen. It's an important condition to rule out with persistent pain."
+      },
+      {
+        "name": "Peptic Ulcer Disease",
+        "likelihood": "possible",
+        "explanation": "Sores in the lining of the stomach or duodenum can cause persistent, burning abdominal pain."
+      }
+    ],
+    "drug_interactions": [],
+    "recommendations": [
+      "Seek medical evaluation promptly for the persistent and moderately severe stomach ache.",
+      "Monitor for any new or worsening symptoms, such as fever, vomiting, diarrhea, localized pain, or blood in stool.",
+      "Stay hydrated by drinking clear fluids.",
+      "Avoid spicy, fatty, or acidic foods that might exacerbate stomach discomfort."
+    ],
+    "questions_for_doctor": [
+      "What is the exact location of the stomach pain?",
+      "Are there any other associated symptoms, such as nausea, vomiting, diarrhea, constipation, fever, or changes in appetite?",
+      "What makes the pain better or worse?",
+      "Does the pain radiate to any other part of the body?",
+      "Is there any history of similar stomach issues or other medical conditions?"
+    ]
+  }
+}

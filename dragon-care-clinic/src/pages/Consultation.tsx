@@ -73,7 +73,7 @@ const Consultation = () => {
     { id: "flags", title: "Flags", icon: AlertTriangle, color: "text-amber-500", dotColor: "bg-amber-400", count: analysis.flags?.length, hasRed: analysis.flags?.some((f: any) => f.severity === "RED_FLAG") },
     { id: "conditions", title: "Conditions", icon: Shield, color: "text-secondary", dotColor: "bg-secondary", count: analysis.possible_conditions?.length },
     { id: "recommendations", title: "Next Steps", icon: CheckCircle, color: "text-emerald-500", dotColor: "bg-emerald-500" },
-    { id: "questions", title: "Ask Doctor", icon: Info, color: "text-secondary", dotColor: "bg-secondary" },
+    { id: "questions", title: "Follow up Questions", icon: Info, color: "text-secondary", dotColor: "bg-secondary" },
   ] : [];
 
   const goNext = () => setActiveSection(prev => Math.min(prev + 1, sections.length - 1));

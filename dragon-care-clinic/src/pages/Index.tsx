@@ -25,7 +25,7 @@ const Index = () => {
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-sm mx-auto px-6 pt-6">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center mb-1">
-          <h1 className="font-heading font-black text-[28px] text-foreground tracking-tight leading-tight">Dragon Care Clinic</h1>
+          <h1 className="font-heading font-black text-[28px] text-foreground tracking-tight leading-tight">DracoCare</h1>
           <p className="text-muted-foreground font-body text-sm mt-1.5 font-semibold">Where tiny dragons take big care of you</p>
         </motion.div>
 

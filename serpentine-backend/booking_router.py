@@ -1,5 +1,5 @@
 """
-booking_router.py — FastAPI router for appointment booking
+booking_router.py — FastAPI router for appointment booking (DracoCare)
 """
 
 import os
@@ -34,6 +34,16 @@ class VAPICallRequest(BaseModel):
     condition: str
     preferred_time: str
     session_id: str
+    # Full patient context from reception room
+    duration: Optional[str] = None
+    severity: Optional[str] = None
+    medications: Optional[str] = None
+    allergies: Optional[str] = None
+    medical_history: Optional[str] = None
+    age: Optional[str] = None
+    sex: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
 
 class CalendarEventRequest(BaseModel):
     hospital_name: str
@@ -229,28 +239,47 @@ async def vapi_call(req: VAPICallRequest):
             "message": "VAPI call simulated",
         }
 
-    system_prompt = f"""You are Riley, a medical appointment booking assistant calling on behalf of {req.patient_name}.
-
-Patient details:
-- Name: {req.patient_name}
+    # Build full patient context string from reception room data
+    patient_details = f"""- Name: {req.patient_name}
+- Age: {req.age or "not provided"}
+- Sex: {req.sex or "not provided"}
 - Insurance: {req.patient_insurance}
 - Reason for visit: {req.condition}
-- Preferred time slots (already verified free in patient's calendar): {req.preferred_time}
+- Symptom duration: {req.duration or "not specified"}
+- Severity: {req.severity + "/10" if req.severity else "not specified"}
+- Current medications: {req.medications or "none reported"}
+- Allergies: {req.allergies or "none reported"}
+- Medical history: {req.medical_history or "none reported"}
+- Phone: {req.phone or "not provided"}
+- Email: {req.email or "not provided"}"""
 
-Your job:
-1. Greet and confirm you're speaking with {req.hospital_name}
-2. State patient name and insurance
-3. Explain reason for visit
-4. Request ONE of these specific time slots: {req.preferred_time}
-5. Confirm the exact date and time booked
-6. Thank them and end the call
+    system_prompt = f"""You are Riley, a medical appointment booking assistant calling from DracoCare on behalf of a patient.
 
-IMPORTANT: Be professional, concise and friendly. Only accept one of the offered time slots. Do not agree to any other time."""
+Full patient information collected during intake:
+{patient_details}
+
+Available time slots (already verified free in patient's calendar):
+{req.preferred_time}
+
+Your job — follow these steps in order:
+1. Greet the receptionist warmly and confirm you're speaking with {req.hospital_name}
+2. Explain you're calling from DracoCare to book an appointment for {req.patient_name}
+3. State their insurance: {req.patient_insurance}
+4. Briefly describe the reason for visit: {req.condition}
+5. Offer the available time slots and ask which one works for them
+6. Confirm the exact date and time agreed upon
+7. Thank them and end the call professionally
+
+RULES:
+- Only accept one of the offered time slots. Do not agree to any time not listed.
+- If none of the slots work, politely ask for their next available appointment.
+- Be professional, concise, and friendly throughout.
+- You have full patient context — use it if the clinic asks any questions."""
 
     payload = {
         "assistantId": os.getenv("VAPI_ASSISTANT_ID", ""),
         "assistantOverrides": {
-            "firstMessage": f"Hello! I'm calling to book an appointment for {req.patient_name}. Is this {req.hospital_name}?",
+            "firstMessage": f"Hello! I'm Riley calling from DracoCare. I'm looking to book an appointment for {req.patient_name}. Am I speaking with {req.hospital_name}?",
             "model": {
                 "provider": "openai",
                 "model": "gpt-4o-mini",
@@ -308,9 +337,13 @@ async def vapi_call_status(call_id: str):
 
     transcript = data.get("transcript", "")
     ended = data.get("status") == "ended"
+    # Replace the confirmed logic with something stricter
     confirmed = ended and any(
         w in transcript.lower()
-        for w in ["confirmed", "booked", "scheduled", "appointment", "see you"]
+        for w in ["confirmed", "booked", "scheduled", "see you", "all set"]
+    ) and not any(
+        w in transcript.lower()
+        for w in ["unable", "not available", "can't", "cannot", "no availability", "fully booked", "no openings"]
     )
 
     return {
@@ -332,7 +365,7 @@ async def create_calendar_event(req: CalendarEventRequest):
         "description": (
             f"Patient: {req.patient_name}\n"
             f"Reason: {req.condition}\n"
-            f"Booked via Dragon Care Clinic\n\n"
+            f"Booked via DracoCare\n\n"
             f"Remember to bring your insurance card and a valid ID."
         ),
         "start": {"dateTime": start_dt.isoformat(), "timeZone": "America/Los_Angeles"},

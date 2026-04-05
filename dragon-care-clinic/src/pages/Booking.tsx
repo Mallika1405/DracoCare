@@ -201,7 +201,6 @@ const Booking = () => {
   const [searchError, setSearchError] = useState("");
 
   const [weekSlots, setWeekSlots] = useState<DaySlot[]>([]);
-  // Multi-select: up to 3 slots
   const [selectedSlots, setSelectedSlots] = useState<SlotItem[]>([]);
   const [manualMode, setManualMode] = useState(false);
   const [manualDate, setManualDate] = useState("");
@@ -220,7 +219,6 @@ const Booking = () => {
   const [anitaText, setAnitaText] = useState("Let me find the best clinics near you…");
   const [anitaSpeaking, setAnitaSpeaking] = useState(true);
 
-  // The confirmed slot to add to calendar (first selected, or first free)
   const primarySlot = selectedSlots[0] ?? null;
 
   function say(text: string) {
@@ -233,7 +231,7 @@ const Booking = () => {
     setSelectedSlots(prev => {
       const exists = prev.some(s => s.day === slot.day && s.time === slot.time);
       if (exists) return prev.filter(s => !(s.day === slot.day && s.time === slot.time));
-      if (prev.length >= 3) return prev; // max 3
+      if (prev.length >= 3) return prev;
       return [...prev, slot];
     });
   }
@@ -298,7 +296,6 @@ const Booking = () => {
       const slots = buildWeekSlots(data.busy || []);
       setWeekSlots(slots);
 
-      // Auto-select first free slot
       if (slots.length > 0 && slots[0].times.length > 0) {
         const first = slots[0];
         const autoSlot = { day: first.day, date: first.date, dateISO: first.dateISO, time: first.times[0] };
@@ -358,10 +355,17 @@ const Booking = () => {
           condition: p.symptoms || "general checkup",
           preferred_time: preferredTime,
           session_id: sessionId || "default",
+          // Full patient context from reception
           duration: p.duration || null,
           severity: p.severity || null,
           medications: p.medications || null,
           allergies: p.allergies || null,
+          medical_history: p.medical_history || null,
+          age: p.age || null,
+          sex: p.sex || null,
+          phone: p.phone || null,
+          email: p.email || null,
+
         }),
       });
       const data = await r.json();
@@ -411,7 +415,6 @@ const Booking = () => {
     if (!selectedHospital) return;
     const p = patient || {};
 
-    // Use first selected slot, or manual, or tomorrow as fallback
     const datetimeISO = primarySlot
       ? timeToISO(primarySlot.dateISO, primarySlot.time)
       : manualDate && manualTime
@@ -469,7 +472,6 @@ const Booking = () => {
       <div className="absolute top-[-80px] left-[-60px] w-64 h-64 rounded-full blur-3xl pointer-events-none" style={{ background: "hsl(195 40% 85% / 0.35)" }} />
       <div className="absolute bottom-[-60px] right-[-40px] w-56 h-56 rounded-full blur-3xl pointer-events-none" style={{ background: "hsl(170 35% 88% / 0.3)" }} />
 
-      {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="sticky top-0 z-20 px-4 py-3 flex items-center gap-3 border-b border-border bg-background/70 backdrop-blur-md">
         <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-xl bg-muted flex items-center justify-center hover:bg-border transition-colors">
@@ -492,7 +494,6 @@ const Booking = () => {
       <div className="flex-1 px-4 py-4 max-w-sm mx-auto w-full pb-10">
         <AnitaBubble text={anitaText} isSpeaking={anitaSpeaking} />
 
-        {/* Locating */}
         {step === "locating" && (
           <motion.div className="flex flex-col items-center gap-4 py-12">
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
@@ -503,7 +504,6 @@ const Booking = () => {
           </motion.div>
         )}
 
-        {/* Hospitals */}
         {step === "hospitals" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
             {patient?.insurance && (
@@ -534,11 +534,8 @@ const Booking = () => {
           </motion.div>
         )}
 
-        {/* Scheduling */}
         {step === "scheduling" && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
-
-            {/* Calendar connect — show if no slots yet and not manual */}
             {!calendarToken && weekSlots.length === 0 && !manualMode && (
               <motion.div className="rounded-2xl border-2 border-dashed border-secondary/30 bg-secondary/5 p-5 text-center space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center mx-auto">
@@ -563,7 +560,6 @@ const Booking = () => {
               </motion.div>
             )}
 
-            {/* Week slots — multi-select */}
             {weekSlots.length > 0 && !manualMode && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -608,7 +604,6 @@ const Booking = () => {
               </div>
             )}
 
-            {/* Manual mode */}
             {manualMode && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -627,7 +622,6 @@ const Booking = () => {
               </motion.div>
             )}
 
-            {/* Selected slots summary */}
             {selectedSlots.length > 0 && (
               <div className="bg-secondary/5 border border-secondary/20 rounded-xl px-3 py-2 space-y-1">
                 <p className="text-[10px] font-heading font-bold text-secondary uppercase tracking-wide">Offering these times to the clinic:</p>
@@ -642,7 +636,6 @@ const Booking = () => {
               </div>
             )}
 
-            {/* Call button */}
             {canCall && (
               <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 onClick={initiateVAPICall} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
@@ -656,7 +649,6 @@ const Booking = () => {
           </motion.div>
         )}
 
-        {/* Calling */}
         {step === "calling" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
             <div className="rounded-2xl border border-border bg-white/70 p-5 text-center space-y-4">
@@ -698,7 +690,6 @@ const Booking = () => {
           </motion.div>
         )}
 
-        {/* Calendar */}
         {step === "calendar" && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
             <div className={`rounded-2xl border-2 p-4 ${callConfirmed ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
@@ -714,6 +705,12 @@ const Booking = () => {
                   {primarySlot && ` · ${primarySlot.day} ${primarySlot.date} at ${primarySlot.time}`}
                 </p>
               )}
+              {!callConfirmed && (
+                <p className="text-xs text-amber-700 mt-1">
+                The clinic couldn't confirm one of your slots. You can call them directly at{" "}
+                <span className="font-bold">{selectedHospital?.phone}</span> or try booking a different time.
+                </p>
+                )}
               {callTranscript && <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed line-clamp-3">{callTranscript}</p>}
             </div>
             <button onClick={addToCalendar}
@@ -723,6 +720,12 @@ const Booking = () => {
               Add to Google Calendar
               {primarySlot && <span className="text-white/70 font-normal text-[11px]">({primarySlot.day} at {primarySlot.time})</span>}
             </button>
+            {!callConfirmed && (
+                <button onClick={() => { setStep("scheduling"); setCallStatus("idle"); setCallTranscript(""); }}
+                className="w-full py-2.5 rounded-xl font-body font-semibold text-xs text-muted-foreground bg-muted hover:bg-border transition-colors">
+                ← Try different time slots
+            </button>
+            )}
             <button onClick={() => { setCalendarAdded(true); setStep("done"); say("All done! Take care of yourself. 🐉"); }}
               className="w-full py-2.5 rounded-xl font-body font-semibold text-xs text-muted-foreground bg-muted hover:bg-border transition-colors">
               Skip calendar — I'm done
@@ -730,7 +733,6 @@ const Booking = () => {
           </motion.div>
         )}
 
-        {/* Done */}
         {step === "done" && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
             <div className="rounded-2xl border-2 border-secondary/30 bg-secondary/5 p-6 text-center space-y-4">
@@ -762,7 +764,7 @@ const Booking = () => {
             </div>
             <motion.button onClick={() => navigate("/")} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               className="w-full py-3 rounded-2xl font-heading font-bold text-sm bg-muted border border-border text-muted-foreground hover:bg-border transition-colors flex items-center justify-center gap-2">
-              Back to Dragon Care Clinic
+              Back to DracoCare
             </motion.button>
           </motion.div>
         )}

@@ -124,6 +124,8 @@ PHASE 3 — Adaptive questioning:
   - Known allergies
   - Any chronic conditions or relevant medical history
   - Insurance provider
+  - Best phone number to contact
+  - Email address
 
 RULES:
 - One question at a time — never fire multiple questions at once
